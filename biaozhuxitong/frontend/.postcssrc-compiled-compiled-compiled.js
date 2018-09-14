@@ -1,0 +1,14 @@
+// https://github.com/michael-ciniawsky/postcss-load-config
+
+module.exports = {
+  "plugins": {
+    // to edit target browsers: use "browserslist" field in package.json
+    "autoprefixer": {}
+  }
+};
+
+//# sourceMappingURL=.postcssrc-compiled.js.map
+
+//# sourceMappingURL=.postcssrc-compiled-compiled.js.map
+
+//# sourceMappingURL=.postcssrc-compiled-compiled-compiled.js.map

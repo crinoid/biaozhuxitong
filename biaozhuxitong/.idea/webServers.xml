@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="98559b8d-4c60-4d46-8501-8113aa7c9928" name="bzxt" url="http://172.19.19.91">
+        <fileTransfer host="172.19.19.91" port="22" rootFolder="/home/bzxt_remote/" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
