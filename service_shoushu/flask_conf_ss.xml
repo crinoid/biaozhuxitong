@@ -1,0 +1,8 @@
+<uwsgi>
+<socket>:9001</socket>
+<callable>app</callable>
+<wsgi-file>/home/biaozhuxitong/service/service_shoushu.py</wsgi-file>
+<module>service</module>
+<process>4</process>
+<daemonize>/home/biaozhuxitong/service/uwsgi/uwsgi.log</daemonize>
+</uwsgi>
