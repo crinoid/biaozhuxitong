@@ -6,22 +6,26 @@ from fuzzywuzzy import fuzz
 from copy import deepcopy
 import codecs
 import sys
+import requests
+import json
 
 import utils
 from build_icd import build_icd_norm, build_icd_type_norm, build_icd_code_dict
 
 from elasticsearch2 import Elasticsearch
+
 es = Elasticsearch()
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-MATCH_COUNT=10
-ACCURACY=55
+MATCH_COUNT = 10
+ACCURACY = 55
 
 '''
 预处理
 '''
+
 
 def get_config(type):
     source_dic = {}
@@ -31,27 +35,29 @@ def get_config(type):
             source_dic[k] = v
     return source_dic
 
-def pre_load(source_dic,CACHE_PATH,TMP_PATH,update_types):
+
+def pre_load(source_dic, CACHE_PATH, TMP_PATH, update_types):
     '''
     检查icd_name是否更新，若更新，重新生成cache文件，并更新tmp文件
     :param source_dic: {LC:国家临床版,GB:国家版}
     :return:
     '''
-    for file_pre,file_name in source_dic.iteritems():
+    for file_pre, file_name in source_dic.iteritems():
         f1_path = CACHE_PATH + file_pre + '_icd_name.csv'
         f2_path = TMP_PATH + file_pre + '_icd_name_shoushu.csv'
 
         if not utils.file_compare(f1_path, f2_path):
             # 文件改变，重新生成cache
             build_icd_norm(CACHE_PATH + file_pre + "_icd_name.csv",
-                           CACHE_PATH + file_pre + "_icd_norm.csv",utils.SERVICE_URL_SS)
+                           CACHE_PATH + file_pre + "_icd_norm.csv", utils.SERVICE_URL_SS)
             for type, name in update_types.iteritems():
                 build_icd_type_norm(CACHE_PATH + file_pre + "_icd_name.csv",
                                     CACHE_PATH + file_pre + "_icd_" + type + ".csv", name, file_name)
             build_icd_code_dict(CACHE_PATH + file_pre + "_icd_name.csv",
-                                CACHE_PATH + file_pre + "_icdcode_dict.csv",file_name,2)
+                                CACHE_PATH + file_pre + "_icdcode_dict.csv", file_name, 2)
             # 更新tmp文件
             utils.copy_file(f1_path, f2_path)
+
 
 def extract_icd(icd_norm_path):
     '''
@@ -64,6 +70,7 @@ def extract_icd(icd_norm_path):
         item = line.split("\t")
         icd_dict[item[0]] = [item[2], item[1].replace("\n", "")]  # 分词,编码
     return icd_dict
+
 
 def build_code_dict(path):
     '''
@@ -80,7 +87,7 @@ def build_code_dict(path):
             print line
     return code_dict
 
-def build_syn_dic(syn_file_path):
+def build_syn_dic1(syn_file_path):
     syn_dict = {}
     for line in open(syn_file_path).readlines():
         syns = line.strip().split("\t")
@@ -88,14 +95,75 @@ def build_syn_dic(syn_file_path):
             cp_syns = deepcopy(syns)
             cp_syns.remove(s)
             syn_dict[s] = cp_syns
+
     return syn_dict
+
+def build_syn_dic(syn_file_path):
+    syn_dict = []
+    # for line in open(syn_file_path).readlines():
+    #     syns = line.strip().split("\t")
+    #     for s in syns:
+    #         cp_syns = deepcopy(syns)
+    #         cp_syns.remove(s)
+    #         syn_dict[s] = cp_syns
+    for line in open(syn_file_path).readlines():
+        syn_dict.append(line.strip().split("\t"))
+    return syn_dict
+
 
 '''
 匹配部分
 '''
 
+def is_similar(term1,term2,sentence,syn_dict):
+    '''
+    判断两个部位是否是同义词
+    :param term1:
+    :param term2: sentence的term
+    :param sentence:原文
+    :param syn_dict:
+    :return:
+    '''
+    if term1 in sentence: #e.g term1=肝 sentence=多囊肝
+        return 0
+    # if term1 in term2 or term2 in term1:
+    #     return 0
 
-def match_all_code(icd_list,code_list, source_list, pos,size):
+    try:
+        if term2 in syn_dict[term1]:
+            return 0
+    except:
+        pass
+    try:
+        if term1 in syn_dict[term2]:
+            return 0
+    except:
+        pass
+
+    return 1
+
+def get_ratio(term1,term2):
+    '''
+    计算两个词的相似度，不考虑顺序
+    :param term1:
+    :param term2:
+    :return:
+    '''
+    if type(term1)==str:
+        term1=term1.encode("utf8")
+    if type(term2)==str:
+        term2=term2.encode("utf8")
+
+    def split_word(term):
+        return " ".join([t for t in term])
+    term1=split_word(term1)
+    term2=split_word(term2)
+
+    r1 = fuzz.token_sort_ratio(term1,term2,force_ascii=False)
+    r2 = fuzz.token_set_ratio(term1,term2,force_ascii=False)
+    return (r1+r2)/2
+
+def match_all_code(icd_list, code_list, source_list, pos, size):
     '''
     只输入编码，按编码匹配
     完全一样的，返回；没有完全一样的，返回前3位对应的所有条目
@@ -144,20 +212,46 @@ def match_all_code(icd_list,code_list, source_list, pos,size):
 
     return map(match, code_list)
 
-def update_res(res, data):
-    for k, v in data.iteritems():
-        if k in res.keys():
-            if len(res[k]) < MATCH_COUNT:
-                total = len(res[k])
-                for v1 in v:
-                    if v1 not in res[k]:
-                        res[k].append(v1)
-                        total += 1
-                        if total == MATCH_COUNT:
-                            break
-        else:
-            res[k] = v
+
+def update_res(old_data, new_data):
+    if old_data:
+        res = {}
+        for k, v in new_data.iteritems():
+            new_list = []
+            top = old_data[k][0][2]
+            i = 0
+            j = 0
+            while i < len(v) and j<len(old_data[k]):
+                if v[i][2] > top:
+                    new_list.append(v[i])
+                    i += 1
+                    top = old_data[k][j][2]
+                else:
+                    new_list.append(old_data[k][j])
+                    j += 1
+                    top = v[i][2]
+                if len(new_list) == MATCH_COUNT:
+                    break
+            if len(new_list)<MATCH_COUNT and j<len(old_data[k])-1:
+                while j<len(old_data[k]):
+                    new_list.append(old_data[k][j])
+            res[k] = new_list
+    else:
+        res=new_data
+
+        # if k in res.keys():
+        #     if len(res[k]) < MATCH_COUNT:
+        #         total = len(res[k])
+        #         for v1 in v:
+        #             if v1 not in res[k]:
+        #                 res[k].append(v1)
+        #                 total += 1
+        #                 if total == MATCH_COUNT:
+        #                     break
+        # else:
+        #     res[k] = v
     return res
+
 
 def build_res_dict(res, dis_sentence):
     '''
@@ -185,21 +279,54 @@ def build_res_dict(res, dis_sentence):
 
     return dis_list
 
+# def check_region(match_group,diag_key,sentence):
+#
+#     for i in match_group[diag_key].keys(): #i:icd
+#         diag = i
+#         seg_res = seg_sentence(diag, False)
+#         for t in seg_res:
+#             if "部位" in t:
+#                 regions = t["部位"]
+#                 is_match = 1
+#                 # 如果icd所有的部位与diag所有的部位都不相同（相似度较小），排除
+#                 for r in regions:
+#                     try: # sentence可能没有部位
+#                         for diag in sentence["部位"]:
+#                             is_match = is_similar(r, diag, sentence["原文"],{})
+#                     except:
+#                         pass
+#
+#                 if is_match == 1:
+#                     del match_group[diag_key][i]
+#             # icd如果带有"不伴"，"不伴有",这部分不能出现在
+#             if "不伴" in i:
+#                 not_include=i.split("不伴")[1]
+#                 if sentence["原文"].find(not_include)>-1:
+#                     del match_group[diag_key][i]
+#     return match_group
+
 # 相似度匹配要检查部位是否一样,match_term:相同部位,由于可能用了同义词,此部位不参与比较
-def check_region(icd_list,dis, icd, source):
-    try:
-        if "1_region_term" in eval(icd_list[source]['norm'][icd][0]):
-            icd_region = eval(icd_list[icd][0])["1_region_term"]
-            # 保证icd的部位在dis都出现(除了匹配的部位),同时"部位"是正常部位(在self.region_keys里)
-            for d in icd_region:
-                if d not in dis:
-                    return False
+def check_region(diagnose, region_list,region):
+    if not region:
+        return t
+    for r in region:
+        if r in diagnose:
             return True
-        return True
-    except:
+        else:
+            replacements = {"左": "", "右": "","前": "", "后": "", "双": "","部": "", "内": "", "外": "","侧":""}
+            r = "".join([replacements.get(c, c) for c in r])
+            if r in diagnose:
+                return True
+
+    else:
+        # 相似度匹配，这个过后写
+        # for r in region_list:
+        #     if is_similar(r,region):
+        #         return True
         return False
 
-def icd_part_in_dis(icd_list,dis, icd, source,types):
+
+def icd_part_in_dis(icd_list, dis, icd, source,types):
     try:
         source = get_source_code(source)
         icd_dic = eval(icd_list[source]['norm'][icd][0])
@@ -214,7 +341,8 @@ def icd_part_in_dis(icd_list,dis, icd, source,types):
         return False
     return True
 
-def get_terms_with_same_icd3(icd_list,dis_sentence, source_list, pos):
+
+def get_terms_with_same_icd3(icd_list, dis_sentence, source_list, pos):
     '''
     按输入的编码的前pos位匹配
     :param dis_sentence: {icd:code}
@@ -278,31 +406,35 @@ def add_icd_items(icds, new_icd):
             icds[k] = v
     return icds
 
+
 '''
 es搜索部分
 '''
 
-def es_reflection(source,source_dic):
+
+def es_reflection(source, source_dic):
     return source_dic[source[-2:].upper()]
 
 
-def rewrite_search(res,source):
+def rewrite_search(res, source):
     '''
     es搜索到的整理成对应的形式
     :param res_list:
     :return:
     '''
-    return [res["_source"]["icd"], res["_source"]["code"], res["_score"], es_reflection(res["_index"],source)]
+    return [res["_source"]["icd"], res["_source"]["code"], res["_score"], es_reflection(res["_index"], source)]
 
-def es_search(dis, index):
+
+def es_search(dis, index, size):
     res = es.search(index=index, body={
         "query": {"multi_match": {
             "query": dis,
             "fields": ["icd"]
         }},
-        "size": MATCH_COUNT,
+        "size": size,
     })
     return res["hits"]["hits"]
+
 
 '''
 字符替换
@@ -336,6 +468,7 @@ def replace_punctuation(content):
 
     return content
 
+
 def build_digits():
     '''
     将数字统一成阿拉伯数字，匹配有优先级（III 可以识别为 II 和 I，在II和I之前）
@@ -358,7 +491,7 @@ def build_digits():
 
 
 # 在匹配时,将罗马数字/大写数字换成阿拉伯数字
-def replace_digits(data,digits_dic):
+def replace_digits(data, digits_dic=build_digits()):
     for k, v in digits_dic.iteritems():
         data = data.replace(k, v)
     return data
@@ -397,46 +530,51 @@ def remove_content_in_para(data):
 
 
 # 通过来源名字找到code(国家临床版-->LC)
-def get_source_code(source,source_dic):
+def get_source_code(source, source_dic):
     for k, v in source_dic.iteritems():
         if source == v:
             return k
     return ""
 
-
-
-
-def sentence_seg(dis):
-    unknown_terms = {}
-    f = open("seg_reseg.csv", "w")
-    terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": dis.keys()}),
-                               headers=utils.HEADERS).content.decode(
-        'utf8')
+def seg_sentence(diag,seg_para=False):
+    # if diag=="面骨骨折":
+    #     print "00000"
+    terms_dict = requests.post(utils.SERVICE_URL_ZD,
+                               data=json.dumps({"diag": [diag], "seg_para": seg_para}),
+                               headers=utils.HEADERS).content.decode('utf8')
     terms_dict = eval(terms_dict)
-    for item in terms_dict["diag"]:
-        flag = True
-        # for i in item.keys():
-        #     if "未知" in i:
-        # for u in item[i]: #未知：[胸壁，及]
-        #     if u not in unknown_terms.keys():
-        #         unknown_terms[u]=0
-        #     unknown_terms[u]+=1
-        #     flag=True
-        #     break
-        if flag:
-            f.write(item["原文"])
-            f.write("\t" + json.dumps(item, ensure_ascii=False))
-            f.write("\t" + dis[item["原文"]])
-            # for k,v in unknown_terms.iteritems():
-            #     f.write(k+"\t"+str(v))
-            f.write("\n")
+    if "未知" in terms_dict["diag"][0]:
+        for w in terms_dict["diag"][0]["未知"]:
+            type=utils.auto_match(w,5)
+            terms_dict["diag"][0]["未知"].remove(w)
+            if type not in terms_dict["diag"][0]:
+                terms_dict["diag"][0][type]=[]
+            terms_dict["diag"][0][type].append(w)
+    return terms_dict["diag"]
 
+# def sentence_seg(dis):
+#     unknown_terms = {}
+#     f = open("seg_reseg.csv", "w")
+#     terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": dis.keys()}),
+#                                headers=utils.HEADERS).content.decode(
+#         'utf8')
+#     terms_dict = eval(terms_dict)
+#     for item in terms_dict["diag"]:
+#         flag = True
+#         # for i in item.keys():
+#         #     if "未知" in i:
+#         # for u in item[i]: #未知：[胸壁，及]
+#         #     if u not in unknown_terms.keys():
+#         #         unknown_terms[u]=0
+#         #     unknown_terms[u]+=1
+#         #     flag=True
+#         #     break
+#         if flag:
+#             f.write(item["原文"])
+#             f.write("\t" + json.dumps(item, ensure_ascii=False))
+#             f.write("\t" + dis[item["原文"]])
+#             # for k,v in unknown_terms.iteritems():
+#             #     f.write(k+"\t"+str(v))
+#             f.write("\n")
 
-# dis_list = {}
-# for line in open("").readlines():
-#     dis,count = line.strip().split("\t")
-#     dis_list[dis]=count
-#
-# sentence_seg(
-#     dis_list
-# )
+# print get_ratio("多囊肝","肝多发囊肿")

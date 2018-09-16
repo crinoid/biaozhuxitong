@@ -47,10 +47,10 @@ def build_icd_norm(path, icd_path,service_url):
                                     headers=utils.HEADERS).content.decode('utf8'))
 
     f = open(icd_path, "w")
-    # type_dict = {"中心词": "0_core_term", "部位": "1_region_term", "特征词": "2_type_term", "判断词": "3_judge_term",
-    #              "连接词": "4_connect_term", "其他": "5_others_term","未知":"dummy_term"}
-    type_dict = {"入路": "0_approach_term", "部位/范围": "1_region_term", "术式": "2_operation_term", "疾病性质": "3_disease_term",
-                 "植入物": "4_implant_term", "其他": "5_others_term", "未知": "dummy_term"}
+    type_dict = {"中心词": "0_core_term", "部位": "1_region_term", "特征词": "2_type_term", "判断词": "3_judge_term",
+                 "连接词": "4_connect_term", "其他": "5_others_term","未知":"dummy_term"}
+    # type_dict = {"入路": "0_approach_term", "部位/范围": "1_region_term", "术式": "2_operation_term", "疾病性质": "3_disease_term",
+    #              "植入物": "4_implant_term", "其他": "5_others_term", "未知": "dummy_term"}
 
     for term in terms_dict["diag"]:
         f.write(term["原文"]+"\t"+icd_dict[term["原文"]])
@@ -78,25 +78,36 @@ def build_icd_type_norm(icd_path, out_path, type_name,source_name):
         icd_list.append(icd)
         icd_dict[icd] = code
 
-    # print icd_list[1593]
-    terms_dict = requests.post(utils.SERVICE_URL_SS, data=json.dumps({"diag": icd_list}),
-                               headers=utils.HEADERS).content.decode('utf8')
-    terms_dict = eval(terms_dict)
-
     f = open(out_path, "w")
     core_dict = {}
 
-    for term in terms_dict["diag"]:
-        if type_name in term.keys():
-            if isinstance(type_name,unicode):
-                type_name=type_name.encode("utf8")
-            for item in term[type_name]:
-                if item not in core_dict.keys():
-                    core_dict[item] = []
-                    # core_dict[item]["match"]=[]
-                    # core_dict[item]["similarity"] = []
-                core_dict[item].append([term["原文"], icd_dict[term["原文"].decode('utf8')].encode('utf8'),source_name])
-                # core_dict[item]["similarity"].append(build_similarity(term["原文"],icd_lines))
+    data_set= utils.db.zd_suggest.find({"sug":type_name})
+    for d in data_set:
+        tmp=[]
+        for icd in icd_list:
+            if d["seg"] in icd:
+                # print type(icd.encode('utf8')),type(icd_dict[icd]),type(source_name)
+                # exit(1)
+                tmp.append([icd.encode('utf8'),icd_dict[icd].encode('utf8'),source_name])
+        if tmp:
+            core_dict[d["seg"].encode('utf8')]=tmp
+
+
+    # terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": icd_list}),
+    #                            headers=utils.HEADERS).content.decode('utf8')
+    # terms_dict = eval(terms_dict)
+
+
+    # for term in terms_dict["diag"]:
+        # if "部位" not in term.keys() and "中心词" not in term.keys():
+        #     print term["原文"]
+        # if type_name in term.keys():
+        #     if isinstance(type_name,unicode):
+        #         type_name=type_name.encode("utf8")
+        #     for item in term[type_name]:
+        #         if item not in core_dict.keys():
+        #             core_dict[item] = []
+        #         core_dict[item].append([term["原文"], icd_dict[term["原文"].decode('utf8')].encode('utf8'),source_name])
 
     f.write(json.dumps(core_dict, ensure_ascii=False, indent=4))
 
@@ -140,7 +151,7 @@ def build_icd_code_dict(icd_path, out_path,source,pos):
 
 # extract_icd("../data/icd/北京临床ICD9(v7.01).xls","../data/icd/cache/shoushu/BJ_icd_name.csv",1,0)
 # build_icd_norm("../data/icd/cache/shoushu/BJ_icd_name.csv", "../data/icd/cache/shoushu/BJ_icd_norm.csv",utils.SERVICE_URL_SS)
-# build_icd_type_norm("../data/icd/cache/shoushu/BJ_icd_name.csv", "../data/icd/cache/shoushu/BJ_icd_region.csv", "部位/范围","北京临床版")
+# build_icd_type_norm("../data/icd/cache/zhenduan/GB_icd_name.csv", "../data/icd/cache/zhenduan/GB_icd_region.csv", "部位","国标版")
 # build_icd_code_dict("../data/icd/cache/shoushu/BJ_icd_name.csv", "../data/icd/cache/shoushu/BJ_icdcode_dict.csv","北京临床版",2)
 
 def remove_para(data):

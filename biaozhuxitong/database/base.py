@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 from pymongo import MongoClient
 import multiprocessing
 from utils import dbinfo as utils
-
+# from utils.utils import encrypt,decrypt
 
 class MongoDatabase:
     def __init__(self):
         conn = MongoClient('localhost', 27017)
         self.db = conn.bzxt  # 连接mydb数据库，没有则自动创建
-        self.my_diag=self.db.diag_files
+        self.my_diag = self.db.diag_files
         self.my_icd = self.db.icd_match
         self.lock = multiprocessing.Lock()
 
@@ -67,12 +67,12 @@ class MongoDatabase:
     # def get_segments(self, my_seg):
     #     return my_seg.find({utils.SEG_STATE: utils.SAVED}).sort([(utils.SEG_SEG, 1)])
 
-    #根据分词找标注类型
-    def get_suggest_from_seg(self,my_sug,seg):
-        return my_sug.find({utils.SUG_SEG:seg})
+    # 根据分词找标注类型
+    def get_suggest_from_seg(self, my_sug, seg):
+        return my_sug.find({utils.SUG_SEG: seg})
 
     def get_suggests(self, my_sug):
-        return my_sug.find({utils.SUG_STATE: utils.SAVED})
+        return iter(my_sug.find({utils.SUG_STATE: utils.SAVED}))
 
     # 新增数据
     # def get_new_segments(self, my_seg):
@@ -89,6 +89,18 @@ class MongoDatabase:
     #             return ""
     #     my_seg.insert(data)
 
+    def is_sug_exist(self, my_sug, seg, sug):
+        '''
+        某个分词是否在数据库中存在,其标注与sug不同
+        :param my_sug:
+        :param seg:
+        :return:
+        '''
+        if my_sug.find_one({utils.SUG_SEG: seg}):
+            old_sug = my_sug.find_one({utils.SUG_SEG: seg})["sug"]
+            return sug.encode('utf8') != old_sug,old_sug
+        return False,""
+
     # 插入标注要判断分词是否已存在,分词-标注是否已存在
     def insert_suggests(self, my_sug, data, cover=False):
         '''
@@ -104,19 +116,20 @@ class MongoDatabase:
                 # 存在相同的分词,但是标注不同
                 # 此时前台提示是否覆盖
                 # 注意unicode，data--str,target--unicode
-                if isinstance(data[utils.SUG_SUG],str):
+                if isinstance(data[utils.SUG_SUG], str):
                     target[utils.SUG_SUG] = target[utils.SUG_SUG].encode('utf8')
                 if target[utils.SUG_SUG] != data[utils.SUG_SUG]:
                     # my_sug.remove({"_id": target["_id"]})
                     # 插入的分词在数据库存在，但是标注不同，判断是否覆盖
                     if not cover:
                         return target
-                    else: #替换数据
+                    else:  # 替换数据
                         my_sug.update({utils.SUG_SEG: data[utils.SUG_SEG]},
-                              {'$set': {utils.SUG_SUG:data[utils.SUG_SUG]}})
+                                      {'$set': {utils.SUG_SUG: data[utils.SUG_SUG]}})
                 else:  # 插入的标注在数据库中存在，不做操作
                     return ""
-            my_sug.insert(data)
+            else:
+                my_sug.insert(data)
         return ""
 
     # 添加分词,更新source和count
@@ -172,22 +185,31 @@ class MongoDatabase:
                 my_seg.update({utils.SEG_SEG: s}, {'$set': {utils.SEG_STATE: utils.SAVED}})
 
     def update_sug_state(self, my_sug, items, isCover=True):
+        res = {}
         if isinstance(items, str) or isinstance(items, unicode):
             for s in items.split(","):
-                # print s
                 if s:
                     idx = s.rfind("-")  # 最后一个"-"是分隔分词与标注
                     seg, sug = s[:idx], s[idx + 1:len(s)]
-                    # 一个分词只能有一个标注,先删除该分词,再添加标注
-                    if isCover:
-                        my_sug.remove({utils.SUG_SEG: seg, utils.SUG_STATE: utils.SAVED})
-                    my_sug.update({utils.SUG_SEG: seg, utils.SUG_SUG: sug}, {'$set': {utils.SUG_STATE: utils.SAVED}})
+                    res = self.get_old_sug_state(my_sug, seg, sug, res, isCover)
         else:
             for seg, sug in items:
-                # 一个分词只能有一个标注,先删除该分词,再添加标注
-                if isCover:
-                    my_sug.remove({utils.SUG_SEG: seg, utils.SUG_STATE: utils.SAVED})
-                my_sug.update({utils.SUG_SEG: seg, utils.SUG_SUG: sug}, {'$set': {utils.SUG_STATE: utils.SAVED}})
+                res = self.get_old_sug_state(my_sug, seg, sug, res, isCover)
+
+        return res
+
+    def get_old_sug_state(self, my_sug, seg, sug, res, isCover):
+        # 一个分词只能有一个标注,先删除该分词,再添加标注
+        old_sug = ""
+        if isCover:
+            # 如果分词已经有了标注，获得此标注
+            if my_sug.find_one({utils.SUG_SEG: seg, utils.SUG_STATE: utils.SAVED}):
+                old_sug = seg + ":" + my_sug.find_one({utils.SUG_SEG: seg, utils.SUG_STATE: utils.SAVED})["sug"]
+            my_sug.remove({utils.SUG_SEG: seg, utils.SUG_STATE: utils.SAVED})['n']
+        my_sug.update({utils.SUG_SEG: seg, utils.SUG_SUG: sug}, {'$set': {utils.SUG_STATE: utils.SAVED}})
+
+        res[seg + ":" + sug] = old_sug
+        return res
 
     # 标注重命名后,更新该标注下的分词对应的标注
     def update_sug_category(self, my_sug, dict):
@@ -218,17 +240,20 @@ class MongoDatabase:
         '''
 
         :param my_seg:
-        :param seg_list:一组分词，二维数组
+        :param seg_list:一组分词，二维数组,如[[伤寒,复发],[高血压,2级]]
         :param max:返回的来源个数
         :return: {分词1:{来源1,来源2...},分词2:{...}}
+        :return: [[分词1,[来源1,来源2...]],[分词2,[...]]]
         '''
 
-        j = 0
-        dic = {}
+        # j = 0
+        # dic = {}
+        res_list=[]
         for segs in seg_list:
-            source_dic = {}
+            # source_dic = {}
+            source_list=[]
             for seg in segs:  # [高血压，2级]
-                sources = []
+                sources = [] #当前词的来源
                 item = my_sug.find_one({utils.SUG_SEG: seg})
                 # 有的分词不在词库中,即item有可能是None,此时需要判断
                 if item:
@@ -239,10 +264,12 @@ class MongoDatabase:
                         sources[i] = sources[i].split("/")
                 else:
                     sources.append("")
-                source_dic[seg] = sources
-            dic[j] = source_dic
-            j += 1
-        return dic
+                source_list.append([seg,sources])
+                # source_dic[seg] = sources
+            # dic[j] = source_dic
+            res_list.append(source_list)
+            # j += 1
+        return res_list
 
     # 获取标注来源,前max个,max=0表示所有
     def get_sug_source(self, my_sug, term_list, max=0):
@@ -257,12 +284,15 @@ class MongoDatabase:
         def split_word(data):
             return data
 
-        dic = {}
+        # dic = {}
+        res_list=[]
 
-        j = 0
+        # j = 0
         for terms in term_list:
-            source_dic = {}
-            for seg, sug in terms.iteritems():
+            # source_dic = {}
+            source_list = []
+            for sugs in terms:
+                seg,sug=sugs[0],sugs[1]
                 sources = []
                 item = my_sug.find_one({utils.SUG_SEG: seg, utils.SUG_SUG: sug})
                 # 有的分词不在词库中,即item有可能是None,此时需要判断
@@ -272,13 +302,15 @@ class MongoDatabase:
                     sources = sources[:max]
                     for i in range(len(sources)):
                         # 去掉split后的空格
-                        sources[i] = filter(split_word,sources[i].split("/"))
+                        sources[i] = filter(split_word, sources[i].split("/"))
                 else:
                     sources.append("")
-                source_dic[seg + "-" + sug] = sources
-            dic[j] = source_dic
-            j += 1
-        return dic
+                source_list.append([seg + "-" + sug, sources])
+                # source_dic[seg + "-" + sug] = sources
+            # dic[j] = source_dic
+            res_list.append(source_list)
+            # j += 1
+        return res_list
 
     def delete_segments(self, my_seg, segs):
         if isinstance(segs, list):
@@ -311,7 +343,7 @@ class MongoDatabase:
         my_sug.remove()
         my_file.remove()
 
-    def insert_diag_file(self,data):
+    def insert_diag_file(self, data):
         '''
         插入诊断文件，用于匹配icd
         :param data:
@@ -322,21 +354,21 @@ class MongoDatabase:
     def get_diag_file(self):
         return self.my_diag.find()
 
-    def get_diag_file_by_code(self,code):
-        file = self.my_diag.find_one({"code":code})
+    def get_diag_file_by_code(self, code):
+        file = self.my_diag.find_one({"code": code})
         if file:
             return file["file"]
         return ""
 
-    def delete_diag_file(self,code):
+    def delete_diag_file(self, code):
         '''
         删除诊断文件
         :param code: 诊断文件随机码
         :return:
         '''
-        self.my_diag.remove({"code":code})
+        self.my_diag.remove({"code": code})
 
-    def insert_icd_match(self,data):
+    def insert_icd_match(self, data):
         '''
         插入诊断-icd匹配内容,key存在，添加，否则新增
         :param my_icd:
@@ -344,11 +376,11 @@ class MongoDatabase:
         :return:
         '''
         diag = data[utils.DIAG]
-        target = self.my_icd.find_one({utils.DIAG:diag})
+        target = self.my_icd.find_one({utils.DIAG: diag})
         if target:
-            for k,v in data[utils.MATCH].iteritems():
+            for k, v in data[utils.MATCH].iteritems():
                 if k in target[utils.MATCH].keys():
-                    target[utils.MATCH][k]=dict(target[utils.MATCH][k],**data[utils.MATCH][k])
-            self.my_icd.update({utils.DIAG:diag}, {'$set': {utils.MATCH:target[utils.MATCH]}})
+                    target[utils.MATCH][k] = dict(target[utils.MATCH][k], **data[utils.MATCH][k])
+            self.my_icd.update({utils.DIAG: diag}, {'$set': {utils.MATCH: target[utils.MATCH]}})
         else:
             self.my_icd.insert(data)

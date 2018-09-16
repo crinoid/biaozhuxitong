@@ -5,6 +5,8 @@ from flask import request
 
 from match_ICD10_api_zhenduan import icd_service as zd_icd_service
 from match_ICD10_api_zhenduan import icd_code_service as zd_icd_code_service
+# from match_ICD10_api_zhenduan2 import icd_service as zd_icd_service
+# from match_ICD10_api_zhenduan2 import icd_code_service as zd_icd_code_service
 from match_ICD10_api_shoushu import icd_service as ss_icd_service
 from match_ICD10_api_shoushu import icd_code_service as ss_icd_code_service
 import json

@@ -2,16 +2,15 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 
-from users.views import log_authority, new_data_authority, origin_data_authority
 from utils import utils, dbinfo
 
 from fuzzywuzzy import fuzz
 
 import json
 import os
-import commands
 import requests
 import logging
+import sys
 
 
 def get_files(request):
@@ -25,6 +24,9 @@ def get_files(request):
 
         files = utils.get_database(request.session.get(utils.SESSION_DB, "")).get_files()
         dic = get_file(files)
+
+        config = json.load(open("config.json"))
+        dic["page_count"] = config['basic']['ITEM_PER_PAGE_FILE']
 
         return HttpResponse(json.dumps(dic), content_type='application/json')
 
@@ -100,14 +102,10 @@ def search_item(request):
 
 
 def get_segs_by_sug(data, target_sug):
-    flag = False
     dic = {}
     for seg, sug in data.iteritems():
         if sug == target_sug:
-            # flag = True
             dic[seg] = sug
-            # if flag and sug != target_sug:
-            #     return dic
     return dic
 
 
@@ -125,12 +123,21 @@ def build_sug_dict(data):
 
 def delete_file(request):
     '''
-    删除上传的文件
+    删除上传的文件(分词标注)
     :param request:
     :return:
     '''
     if request.method == "POST":
         filename = request.POST.get("file", "")
+
+        cur_file = utils.get_database(request.session.get(utils.SESSION_DB, "")).get_file_by_filecode(filename)
+        # 原始文件名
+        origin_file = ""
+        for c in cur_file:
+            origin_file = c["file"]
+        utils.logger_file_info(request.session.get(utils.SESSION_USER, ""), "删除分词标注文件",
+                               request.session.get(utils.SESSION_DB, ""), origin_file)
+
         utils.get_database(request.session.get(utils.SESSION_DB, "")).delete_file(filename)
         if os.path.exists(os.path.join(utils.DIR_UPLOADS, filename)):
             os.remove(os.path.join(utils.DIR_UPLOADS, filename))
@@ -143,6 +150,7 @@ def delete_file(request):
 '''
 datafile
 '''
+
 
 def refresh_datafile_sug(data, db):
     '''
@@ -191,28 +199,22 @@ def update_segs_sugs(request):
     '''
     if request.method == "POST":
         msgs = eval(request.POST.get("msg", ""))  # {"高血压":"中心词"}
+        logger = logging.getLogger(utils.SUGGEST_LOG)
+        for seg, sug in msgs.iteritems():
+            old_sug = utils.get_database(request.session.get(utils.SESSION_DB, "")).get_suggest_from_seg(seg)[0]["sug"]
 
+            utils.log_data_info(logger, request.session.get(utils.SESSION_USER, ""), "手动",
+                                request.session.get(utils.SESSION_DB, ""), "更新原始数据",
+                                seg + ":" + old_sug + "=>" + seg + ":" + sug)
+
+        # 先获得更新的词原先的标注，用于写入日志，再更新数据库
         utils.get_database(request.session.get(utils.SESSION_DB, "")).update_single_sug_category(msgs)
 
-        requests.post(utils.update_sug_url(request.session.get(utils.SESSION_DB, "")), data=request.session.get(utils.SESSION_DB, ""), headers=utils.headers)
+        requests.post(utils.update_sug_url(request.session.get(utils.SESSION_DB, "")),
+                      data="", headers=utils.headers)
         requests.post(utils.update_seg_url(request.session.get(utils.SESSION_DB, "")), data="", headers=utils.headers)
 
         data = init_origin_data({}, request.session.get(utils.SESSION_DB, ""))
-
-        # logger = logging.getLogger(utils.SEGMENT_LOG)
-        # for seg, items in items_update.iteritems():
-        #     if items[0] == "":
-        #         action = "添加"
-        #         out = seg + ":" + items[1]
-        #     elif items[1] == "":
-        #         action == "删除"
-        #         out = seg + ":" + items[0]
-        #     else:
-        #         action == "修改"
-        #         out = seg + ":" + items[0] + "=>" + seg + ":" + items[1]
-        #     logger.info("用户 " + request.session.get("username", "") + " - " + "原始文本" + " - " + action + " - " + out)
-
-        # update_dict_data(msgs)
 
         return HttpResponse(json.dumps(data), content_type='application/json')
 
@@ -226,6 +228,7 @@ def delete_segs_sugs(request):
     if request.method == "POST":
         msgs = eval(request.POST.get("msg", ""))
         dic = {}
+        # 删除新增数据
         if "sug" in msgs.keys():
             sugs = msgs["sug"]
             for s in sugs.split(","):
@@ -234,9 +237,19 @@ def delete_segs_sugs(request):
                     dic['seg'], dic['sug'] = s[:idx], s[idx + 1:len(s)]
 
                     utils.get_database(request.session.get(utils.SESSION_DB, "")).delete_suggests(dic)
+
+                    logger = logging.getLogger(utils.SUGGEST_LOG)
+                    utils.log_data_info(logger, request.session.get(utils.SESSION_USER, ""), "手动",
+                                        request.session.get(utils.SESSION_DB, ""), "删除新增数据",
+                                        dic['seg'] + ":" + dic['sug'])
+        # 删除原始数据
         else:
             for k, v in msgs.iteritems():
                 utils.get_database(request.session.get(utils.SESSION_DB, "")).delete_suggests(v)
+
+                logger = logging.getLogger(utils.SUGGEST_LOG)
+                utils.log_data_info(logger, request.session.get(utils.SESSION_USER, ""), "手动",
+                                    request.session.get(utils.SESSION_DB, ""), "删除原始数据", v["seg"] + ":" + v["sug"])
 
         data = init_origin_data({}, request.session.get(utils.SESSION_DB, ""))
         data = refresh_datafile_sug(data, request.session.get(utils.SESSION_DB, ""))
@@ -244,6 +257,9 @@ def delete_segs_sugs(request):
         request.session[utils.SESSION_ALLDATA] = build_sug_dict(data["items"])
 
         # 更新服务
+        requests.post(utils.update_seg_url(request.session.get(utils.SESSION_DB, "")), data="", headers=utils.headers)
+        requests.post(utils.update_sug_url(request.session.get(utils.SESSION_DB, "")),
+                      data="", headers=utils.headers)
 
         if request.session.get(utils.SESSION_DB, "") == "zhenduan":
             url = utils.seg_service_url_zd
@@ -260,23 +276,6 @@ def delete_segs_sugs(request):
         requests.post(url, data=request.session.get(utils.SESSION_DB, ""), headers=utils.headers)
 
         return HttpResponse(json.dumps(data), content_type='application/json')
-
-
-# def delete_segs(request):
-#     if request.method == "POST":
-#         # 删除所选分词
-#         segs = request.POST.get("msg", "")
-#         delete_selected_segs(segs)
-#
-#         d = refresh_datafile_seg({})
-#
-#         return HttpResponse(json.dumps(d), content_type='application/json')
-
-
-# def delete_selected_segs(segs, db):  # segs:array
-#     utils.get_database(db).delete_segments(segs)
-#     requests.post(utils.update_seg_url, data=json.dumps({"data": utils.get_database(db).get_segments()}),
-#                   headers=utils.headers)
 
 
 def delete_sugs(request):
@@ -303,16 +302,34 @@ def delete_selected_sugs(sugs, db):
 def add_segs_sugs(request):
     '''
     从新增数据添加分词标注
-    :param request: msgs:sug:"人工-中心词,髋关节-部位"
+    :param request: msgs:{sug:"人工-中心词,髋关节-部位"}
     :return:
     '''
     if request.method == "POST":
         data = eval(request.POST.get("msg", ""))
 
-        add_sugs(data["sug"], request.session.get(utils.SESSION_DB, ""))
+        res = add_sugs(data["sug"], request.session.get(utils.SESSION_DB, ""))
         add_segs(request.session.get(utils.SESSION_DB, ""))
 
+        logger = logging.getLogger(utils.SUGGEST_LOG)
+
+        for sug, old_sug in res.iteritems():
+            if old_sug == "":
+                op = "确认标注"
+            else:
+                op = "更新标注"
+                old_sug += "=>"
+            utils.log_data_info(logger, request.session.get(utils.SESSION_USER, ""), "手动",
+                                request.session.get(utils.SESSION_DB, ""), op,
+                                old_sug + sug)
+
         d = refresh_datafile_sug({}, request.session.get(utils.SESSION_DB, ""))
+
+        # 更新服务
+        requests.post(utils.update_seg_url(request.session.get(utils.SESSION_DB, "")),
+                      data="", headers=utils.headers)
+        requests.post(utils.update_sug_url(request.session.get(utils.SESSION_DB, "")),
+                      data="", headers=utils.headers)
 
         return HttpResponse(json.dumps(d), content_type='application/json')
 
@@ -338,27 +355,16 @@ def add_sugs(sugs, db):
     更新标注数据库，state=已存，更新标注服务
     :param sugs:
     :param db:
-    :return:
+    :return:新增标注是否覆盖之前的标注，用于写日志
     '''
-    utils.get_database(db).update_sug_state(sugs)
+    res = utils.get_database(db).update_sug_state(sugs)
     if db == "zhenduan":
         url = utils.sug_service_url_zd
     elif db == "shoushu":
         url = utils.sug_service_url_ss
     requests.post(url, data=db, headers=utils.headers)
 
-    return HttpResponse("", content_type='application/text')
-
-
-# def download_seg(request):
-#     if request.method == "POST":
-#         segs = utils.get_database(request.session.get("dbname", "")).get_new_segments()
-#         data = ""
-#         for f in segs:
-#             s = f['seg'] + "\n"
-#             data += s
-#
-#         return HttpResponse(data, content_type='text')
+    return res
 
 
 def download_sug(request):
@@ -402,9 +408,6 @@ def init_origin_data(data, db):
     for line in all_sugs:
         tmp = line
         del tmp[u"_id"]
-        # tmp["seg"] = line["seg"]
-        # tmp["sug"] = line["sug"]
-        # tmp["sug_source"] = line["sug_source"]
         segs_with_sugs.add(tmp["seg"])
 
         data["items"][i] = tmp
@@ -427,6 +430,9 @@ def get_origin_data(request):
         # 这里按sug排序
         request.session[utils.SESSION_ALLDATA] = build_sug_dict(data["items"])
 
+        config = json.load(open("config.json"))
+        data["page_count"] = config['basic']['ITEM_PER_PAGE_ORIGIN_DATA']
+
         return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -442,223 +448,121 @@ def file_check(filename):
     return HttpResponse("1", content_type="application/text")
 
 
+def check_file(request):
+    '''
+    检查上传的数据是否符合规范
+    :param request:
+    :return:
+    '''
+    try:
+        upload_filename = request.FILES.get("myfile", None)
+        name = upload_filename.name
+        ext = name.split(".")[-1]
+        utils.write_to_file(upload_filename, "tmp.csv", ext)
+
+        all_categories = utils.get_database(request.session.get(utils.SESSION_DB, "")).get_categories()
+
+        error_data, error_type, duplicate_data = [], [], {}
+        i = 0
+        # 上传标注
+        for line in open("tmp.csv").readlines():
+            line = line.strip()
+            if len(line) > 1:
+                if len(line.split("\t")) != 2:
+                    error_data.append(line)  # 数据格式错误
+                else:
+                    seg, sug = line.split("\t")
+                    if sug in all_categories:  # 添加的标注需属于已有标注
+
+                        res, old_sug = utils.get_database(request.session.get(utils.SESSION_DB, "")).is_sug_exist(seg,
+                                                                                                                  sug)
+                        if res:
+                            duplicate_data[seg] = [sug, old_sug]  # 添加的标注需属于已有标注
+                        i += 1
+                    else:
+                        error_type.append(line)  # 标注类型不存在
+            else:
+                error_data.append(line)
+
+        data = {'error': error_data, 'types': error_type, 'duplicate': duplicate_data}
+    except Exception, e:
+        f = open("exp.txt", "w")
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        output = ",".join([str(e), fname, str(exc_tb.tb_lineno)])
+        f.write(output)
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
 def upload_data_file(request):
     '''
     上传分词/标注数据,txt/csv格式
     分词-标注数据库已有，跳过
     分词-标注数据库没有，写入
     分词-标注和数据库的不一样，提示是否覆盖
+    ？只有分词，没有标注：未知
     错误数据（格式不对，标注类型不对），不能写入
     :param request:
     :return:
     '''
-    # if not utils.check_user_session(request):
-    #     return HttpResponseRedirect("/login/")
+    # 上传文件信息写入log
+    # upload_filename = request.FILES.get("myfile", None)
+    # name = upload_filename.name
+    # utils.logger_file_info(request.session.get(utils.SESSION_USER, ""), "上传分词标注数据",
+    #                        request.session.get(utils.SESSION_DB, ""), name)
 
-    upload_filename = request.FILES.get("myfile", None)
-    name = upload_filename.name
-    ext = name.split(".")[-1]
-    utils.write_to_file(upload_filename, "tmp.csv", ext)
+    checked = request.POST.get("checked", "")  # 同一分词，不同标注，是否覆盖原始数据
+    if checked == '0':
+        checked = False
+    else:
+        checked = True
 
     all_categories = utils.get_database(request.session.get(utils.SESSION_DB, "")).get_categories()
 
-    error_data, error_type, duplicate_data = [], [], {}
     i = 0
     # 上传标注
     for line in open("tmp.csv").readlines():
         line = line.strip()
         if len(line) > 1:
             if len(line.split("\t")) != 2:
-                error_data.append(line)  # 数据格式错误
+                pass
             else:
                 seg, sug = line.split("\t")
                 if sug in all_categories:  # 添加的标注需属于已有标注
-                    res = utils.get_database(request.session.get(utils.SESSION_DB, "")).insert_suggests(
+                    # 添加数据
+
+                    utils.get_database(request.session.get(utils.SESSION_DB, "")).insert_suggests(
                         {dbinfo.SUG_SEG: seg, dbinfo.SUG_SUG: sug, dbinfo.SEG_SOURCE: "", dbinfo.SUG_SOURCE: "",
-                         dbinfo.SUG_STATE: "已存", dbinfo.SUG_COUNT: 1})
-                    if res:
-                        duplicate_data[res['seg']] = [res['sug'], sug]  # 添加的标注需属于已有标注
+                         dbinfo.SUG_STATE: "已存", dbinfo.SUG_COUNT: 1}, cover=checked)
+
+                    utils.log_sug_info(request.session.get(utils.SESSION_USER, ""), "从数据文件", request.session.get(
+                        utils.SESSION_DB, ""), "添加标注", seg + ":" + sug)
+
                     i += 1
-                else:
-                    error_type.append(line)  # 标注类型不存在
-        else:
-            error_data.append(line)
 
-    requests.post(utils.update_sug_url(request.session.get(utils.SESSION_DB, "")), data=request.session.get(utils.SESSION_DB, ""), headers=utils.headers)
-
-    data = {'error': error_data, 'type': error_type, 'duplicate': duplicate_data}
+    requests.post(utils.update_seg_url(request.session.get(utils.SESSION_DB, "")),
+                  data="", headers=utils.headers)
+    requests.post(utils.update_sug_url(request.session.get(utils.SESSION_DB, "")),
+                  data="", headers=utils.headers)
 
     # 更新数据
-    data = init_origin_data(data, request.session.get(utils.SESSION_DB, ""))
+    data = init_origin_data({}, request.session.get(utils.SESSION_DB, ""))
     # 这里按sug排序
     request.session[utils.SESSION_ALLDATA] = build_sug_dict(data["items"])
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-def update_duplicate_data(request):
+def update_duplicate_data(seg, sug, dbname):
     '''
     上传分词标注数据时，对于已有分词，覆盖标注
     :param request: msg: [["植入"，"术式"],["盆腔","部位"]]
     :return:
     '''
-    if request.method == "POST":
-        seglist = eval(request.POST.get("msg", ""))
-        for item in seglist:
-            seg, sug = item[0], item[1]
-            utils.get_database(request.session.get(utils.SESSION_DB, "")).insert_suggests(
-                {dbinfo.SUG_SEG: seg, dbinfo.SUG_SUG: sug, dbinfo.SEG_SOURCE: "", dbinfo.SUG_SOURCE: "",
-                 dbinfo.SUG_STATE: "已存", dbinfo.SUG_COUNT: 1}, cover=True)
-    return HttpResponse("", content_type='application/text')  # 新的数据(tmp)写入原始文档(target),并重新排序
+    utils.get_database(dbname).insert_suggests(
+        {dbinfo.SUG_SEG: seg, dbinfo.SUG_SUG: sug, dbinfo.SEG_SOURCE: "", dbinfo.SUG_SOURCE: "",
+         dbinfo.SUG_STATE: "已存", dbinfo.SUG_COUNT: 1}, cover=True)
 
 
-# def rewrite_file(target_file, tmp_file, is_modify=False):
-#     '''
-#
-#     :param target_file:
-#     :param tmp_file:
-#     :param is_modify:
-#     :return:
-#     '''
-#     f_target = open(target_file, "aw")
-#     for line in open(tmp_file).readlines():
-#         line = line.strip()
-#         if is_modify:  # 从标注中提取分词
-#             line = modify_line(line)
-#         f_target.write(line + "\n")
-#     f_target.close()
-#
-#     commands.getstatusoutput("cat " + target_file + " | sort | uniq > o1.csv")
-#     commands.getstatusoutput("mv o1.csv " + target_file)
 
-
-# def modify_line(line):
-#     return line.split("\t")[0]
-
-
-'''
-日志添加,查看
-
-'''
-
-
-def log_management(request):
-    # if not utils.check_user_session(request):
-    #     return HttpResponseRedirect("/login/")
-    # if log_authority(request.session["username"]) == '0':
-    #     return HttpResponseRedirect("/")
-    return render_to_response("log_management.html")
-
-
-def get_log_info(request):
-    '''
-    获得所有日志数据
-    :param request:
-    :return:
-    '''
-    if request.method == "POST":
-        utils.update_db(request)
-        log_dic = {}
-        log_dic["login"] = get_login_loginfo()
-        log_dic["seg"] = get_seg_loginfo()
-        log_dic["sug"] = get_sug_loginfo()
-        log_dic["error"] = get_error_loginfo()
-
-        return HttpResponse(json.dumps(log_dic), content_type='application/json')
-
-
-def get_login_loginfo():
-    '''
-    获得登录日志数据
-    :return:
-    '''
-    login_dic = {}
-    i = 0
-    lines = open(utils.FILE_LOGIN_LOG).readlines()
-    lines.reverse()
-    for line in lines:
-        items = line.strip()[1:-1].split("- ")
-        dic = {}
-        dic["username"] = items[-1].split(" ")[1]
-        dic["date"] = items[0]
-        login_dic[i] = dic
-        i += 1
-
-    return login_dic
-
-
-def get_seg_loginfo():
-    '''
-    获得分词日志数据
-    :return:
-    '''
-    seg_dic = {}
-    i = 0
-    lines = open(utils.FILE_SEGMENT_LOG).readlines()
-    lines.reverse()
-    for line in lines:
-        # 去掉回车和两头的引号
-        items = line.strip()[1:-1].split("- ")
-        if len(items) == 8:
-            dic = {}
-            dic["date"] = items[0]
-            dic["username"] = items[3].split(" ")[1]
-            dic["source"] = items[4]
-            dic["terms"] = items[5]
-            dic["operation"] = items[6]
-            dic["item"] = items[7]
-            dic["diagnose"] = dic["item"].replace("/", "")
-            seg_dic[i] = dic
-            i += 1
-
-    return seg_dic
-
-
-def get_sug_loginfo():
-    '''
-    获得标注日志数据
-    :return:
-    '''
-    sug_dic = {}
-    i = 0
-    lines = open(utils.FILE_SUGGEST_LOG).readlines()
-    lines.reverse()
-    for line in lines:
-        if "-" in line:
-            items = line.strip()[1:-1].split("- ")
-            if len(items) == 9:
-                dic = {}
-                dic["date"] = items[0]
-                dic["username"] = items[3].split(" ")[1]
-                dic["source"] = items[4]
-                dic["terms"] = items[5]
-                dic["operation"] = items[6]
-                dic["diagnose"] = items[7]
-                dic["item"] = items[8]
-                sug_dic[i] = dic
-                i += 1
-
-    return sug_dic
-
-
-def get_error_loginfo():
-    '''
-    获得错误日志数据
-    :return:
-    '''
-    error_dic = {}
-    i = 0
-    lines = open(utils.FILE_ERROR_LOG).readlines()
-    lines.reverse()
-    for line in lines:
-        if "-" in line:
-            items = line.strip()[1:-1].split("- ")
-            dic = {}
-            dic["date"] = items[0]
-            dic["username"] = items[3]
-            dic["type"] = items[4]
-            dic["desc"] = items[5]
-            error_dic[i] = dic
-            i += 1
-
-    return error_dic

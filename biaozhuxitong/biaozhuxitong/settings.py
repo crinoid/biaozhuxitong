@@ -33,7 +33,7 @@ STATICFILES_DIRS = [
 SECRET_KEY = '6&bgku9h^qdny0ni6texn*96&$2_q^jfl_ty%i8^ejgo2o2q2v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -168,43 +168,37 @@ LOGGING = {
         'f_login': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'f_login.log',
+            'filename': 'logs/f_login.log',
             'formatter': 'verbose'
         },
-        'f_upload': {
+        'f_files': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'f_upload.log',
+            'filename': 'logs/f_files.log',
             'formatter': 'verbose'
         },
         'f_seg': { # add segment
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'f_seg.log',
+            'filename': 'logs/f_seg.log',
             'formatter': 'verbose'
         },
         'f_sug': { # add suggest
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'f_sug.log',
+            'filename': 'logs/f_sug.log',
             'formatter': 'verbose'
         },
-        'f_add_item': {  # add new data to file and delete
+        'f_category': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'f_sug.log',
-            'formatter': 'verbose'
-        },
-        'f_delete_item': {  # delete new data
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'f_sug.log',
+            'filename': 'logs/f_category.log',
             'formatter': 'verbose'
         },
         'f_error': {  # operation error
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'f_error.log',
+            'filename': 'logs/f_error.log',
             'formatter': 'verbose'
         },
     },
@@ -215,8 +209,8 @@ LOGGING = {
             'propagate': True,
             'level': 'INFO',
         },
-        'upload': {
-            'handlers': ['f_upload'],
+        'files': {
+            'handlers': ['f_files'],
             'propagate': True,
             'level': 'INFO',
         },
@@ -230,13 +224,8 @@ LOGGING = {
             'propagate': True,
             'level': 'INFO',
         },
-        'item_add':{
-            'handlers': ['f_add_item'],
-            'propagate': True,
-            'level': 'INFO'
-        },
-        'item_delete':{
-            'handlers': ['f_delete_item'],
+        'category':{
+            'handlers': ['f_category'],
             'propagate': True,
             'level': 'INFO'
         },

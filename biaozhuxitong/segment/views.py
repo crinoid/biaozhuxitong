@@ -12,10 +12,7 @@ import re
 import sys
 import logging
 
-import time
-
 error_logger = logging.getLogger('error')
-
 
 def segment(request):
     if not utils.check_user_session(request):
@@ -62,13 +59,16 @@ def send_segment(request):
                 # 获取第一页的分词，显示来源
                 if i <= utils.SEGS_PER_PAGE:
                     info['seg'][i] = dict()
+                    tmp=[]
                     for j in range(len(seg_list[origin])):
                         seg_list[origin][j] = seg_list[origin][j].decode('utf8')
                         info['seg'][i][j + 1] = [s for s in seg_list[origin][j]]
-                    terms.append([s for s in seg_list[origin][j]])
+                        tmp.append(seg_list[origin][j])
+                    terms.append(tmp)
                 i += 1
 
             info['source'] = get_seg_source(request.session.get(utils.SESSION_DB, ""), terms)
+            info["page_count"] = utils.SEGS_PER_PAGE
         except Exception, e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -102,12 +102,12 @@ def seg_from_disk(msg):
         msg = msg.decode('utf8')
 
     msg_list = []
-    for content in re.split(u'[，。,.]', msg):
+    for content in re.split(u'[，。,.\n]', msg):
         if content:  # 文本不为空
             # 去掉多余字符，如两头的空格（trim?）
-            msg = utils.remove_special_word(content)
-            if isinstance(msg, unicode):
-                msg_list.append(msg.encode("utf8"))
+            # msg = utils.remove_special_word(content)
+            if isinstance(content, unicode):
+                msg_list.append(content.encode("utf8"))
     return msg_list
 
 
@@ -150,8 +150,7 @@ def update_seg_source(request):
     if request.method == "POST":
         items = request.POST.get("terms", "")  # [诊断1，诊断2...]
         is_seg = request.POST.get("is_seg", False)  # 是否分词
-        items = items.split(";")[:-1]
-        #
+        items = items.split(utils.SEP)[:-1]
 
         # for k in range(len(items)):
         #     tmp = []
@@ -201,5 +200,3 @@ def merge_segs(segs):
     for seg in segs:
         res += seg
     return res
-
-

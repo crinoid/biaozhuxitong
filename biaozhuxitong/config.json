@@ -1,0 +1,23 @@
+{
+  "basic": {
+    "SEGS_PER_PAGE": 10,
+    "SUGS_PER_PAGE": 10,
+    "SOURCE_TERMS_COUNT": 10,
+    "ITEM_PER_PAGE_FILE": 10,
+    "ITEM_PER_PAGE_ORIGIN_DATA": 10,
+    "ITEM_PER_PAGE_LOG": 10,
+    "BUTTONS_PER_PAGE":10,
+    "ICD_MATCH_COUNT": 10
+  },
+  "icd": {
+    "zhenduan": {
+      "LC": "国家临床版",
+      "GB": "国标版",
+      "BJ": "北京临床版"
+    },
+    "shoushu": {
+      "LC": "国家临床版",
+      "BJ": "北京临床版"
+    }
+  }
+}

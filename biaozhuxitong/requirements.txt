@@ -1,0 +1,7 @@
+django==1.10.7
+flask==0.12
+jieba==0.39
+fuzzywuzzy==0.15.1
+pymongo==3.5.0
+requests==2.12.4
+xlrd

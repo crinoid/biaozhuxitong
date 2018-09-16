@@ -1,8 +1,0 @@
-<uwsgi>
-<socket>:9003</socket>
-<callable>app</callable>
-<wsgi-file>service.py</wsgi-file>
-<module>service</module>
-<process>4</process>
-<daemonize>/home/biaozhuxitong/match_icd/script/uwsgi.log</daemonize>
-</uwsgi>

@@ -104,7 +104,7 @@ class MatchingICD(object):
         if rest_dis:
             diag=rest_dis.keys()
         # 诊断标注，提取key=原文，部位，中心词
-        terms_dict = requests.post(utils.SERVICE_URL_SS, data=json.dumps({"diag": diag, "seg_para": False}),
+        terms_dict = requests.post(utils.SERVICE_URL_SS, data=json.dumps({"diag": diag}),
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
 
@@ -119,7 +119,7 @@ class MatchingICD(object):
         dis_sentence = match_ICD10_api.build_res_dict(res, dis_sentence)
 
         for dis in dis_sentence:
-            r = match_ICD10_api.es_search(dis,map(self.source_reflection,source_list))
+            r = match_ICD10_api.es_search(dis,map(self.source_reflection,source_list),self.MATCH_COUNT)
             res[dis]=map(self.rewrite_search,r)
             # res[dis] = map(match_ICD10_api.rewrite_search, r)
 
@@ -313,7 +313,7 @@ class MatchingICD(object):
 m_icd = MatchingICD()
 
 # 按icd查找
-def icd_service(data, source_list,size=MATCH_COUNT):
+def icd_service(data, source_list,size=MATCH_COUNT,is_enable_ft=False):
     '''
 
     :param data: json格式的诊断，{diag:[]}
@@ -321,11 +321,11 @@ def icd_service(data, source_list,size=MATCH_COUNT):
     '''
 
     res = m_icd.matched_dis(data,source_list,size)
-    for k, v in res.iteritems():
-        print k
-        for icd in v:
-            print icd[0], icd[1], icd[2],icd[3]
-        print "-----"
+    # for k, v in res.iteritems():
+    #     print k
+    #     for icd in v:
+    #         print icd[0], icd[1], icd[2],icd[3]
+    #     print "-----"
 
     return res
 
@@ -345,15 +345,5 @@ def icd_code_service(data,source_list,size=MATCH_COUNT):
     #     print "-----"
     return res
 
-icd_service(["足"], ["BJ"])
+icd_service(["肋骨取骨术"], ["BJ"])
 # icd_code_service(["00.02"], ["BJ","LC"])
-
-# for line in open("data.csv").readlines():
-#     try:
-#         _,source,_a,target=line.strip().split(",")
-#
-#         res=icd_service([source],["BJ"])
-#         if res[source][0][0] != target:
-#             print source+"\t"+target+"\t"+_a
-#     except:
-#         print "exp",line

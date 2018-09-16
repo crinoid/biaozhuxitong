@@ -42,7 +42,7 @@ class MatchingICD(object):
         self.icd_list = self.load_cache_files(self.source_dic.keys())
 
         self.digits_dic = match_ICD10_api.build_digits()
-        self.syn_dict = match_ICD10_api.build_syn_dic(syn_file_path)
+        self.syn_dict = match_ICD10_api.build_syn_dic1(syn_file_path)
 
     def load_cache_files(self, source_list):
         '''
@@ -124,7 +124,7 @@ class MatchingICD(object):
 
         # 没有找到结果的，用es匹配
         for dis in dis_sentence:
-            r = match_ICD10_api.es_search(dis,map(self.source_reflection,source_list))
+            r = match_ICD10_api.es_search(dis,map(self.source_reflection,source_list),self.MATCH_COUNT)
             res[dis]=map(self.rewrite_search,r)
             # res[dis] = ""
 
@@ -271,7 +271,7 @@ class MatchingICD(object):
             syn_term = term[1:]
             icd_list.extend(icd_file[syn_term] if syn_term in icd_file else [])
         # 末尾为"部"把"部"去掉 （肺部）
-        if term[-1] in ["部"]:
+        if term[-1] in ["内"]:
             syn_term = term[:-1]
             icd_list.extend(icd_file[syn_term] if syn_term in icd_file else [])
         # 部位带“左侧/右侧/”的把“左侧/右侧”去掉 当做同义词,unicode，取前6个字符
@@ -355,7 +355,10 @@ class MatchingICD(object):
                         flag=False
             # icd在dis中,icd长度<=dis
             if flag:
-                if len(icd) <= len(dis) and self.icd_part_in_dis(dis, icd,icds[2]):
+                types = ["0_core_term", "1_region_term", "2_type_term", "3_judge_term", "4_connect_term",
+                         "5_others_term",
+                         "dummy_term"]
+                if len(icd) <= len(dis) and match_ICD10_api.icd_part_in_dis(self.icd_list,dis, icd,icds[2],types):
                     # 类似2型糖尿病和糖尿病2型,字相同,顺序不同,一定是最匹配的(此时完全一样的已经去掉)
                     if len(dis_rep) == len(icd_rep):
                         targets[icd + " " + icds[2]] = [icds[1], 105, icds[2]]
@@ -394,19 +397,20 @@ class MatchingICD(object):
 m_icd = MatchingICD()
 
 # 按icd查找
-def icd_service(data, source_list,size=MATCH_COUNT):
+def icd_service(data, source_list,size=MATCH_COUNT,is_enable_ft=False,):
     '''
 
     :param data: json格式的诊断，{diag:[]}
+    :param is_enable_ft:是否使用fasttext猜词
     :return:
     '''
 
     res = m_icd.matched_dis(data,source_list,size)
-    for k, v in res.iteritems():
-        print k
-        for icd in v:
-            print icd[0], icd[1],icd[2], icd[3]
-        print "-----"
+    # for k, v in res.iteritems():
+    #     print k
+    #     for icd in v:
+    #         print icd[0], icd[1],icd[2], icd[3]
+    #     print "-----"
 
     return res
 
@@ -426,5 +430,5 @@ def icd_code_service(data,source_list,size=MATCH_COUNT):
     #     print "-----"
     return res
 
-icd_service(["放射治疗"], ["BJ","LC"])
+icd_service(["视网膜脱离"], ["LC"], size=5)
 # icd_code_service(["R23.1","R24"], ["BJ","GB","LC"])

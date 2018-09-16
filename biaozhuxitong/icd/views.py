@@ -13,6 +13,8 @@ from database.base import MongoDatabase
 from elasticsearch2 import Elasticsearch
 from elasticsearch2 import helpers
 
+# ICD_SOURCE = "icd_source.txt"
+
 es = Elasticsearch()
 ES_SERVERS = [{
     'host': 'localhost',
@@ -83,8 +85,8 @@ def delete_diag_file(request):
 
 def load_diag(filename):
     if filename:
-        lines=[]
-        #去掉空行
+        lines = []
+        # 去掉空行
         for line in open(os.path.join("uploads/", filename)).readlines():
             if line.strip():
                 lines.append(line)
@@ -115,7 +117,7 @@ def submit_icd(request):
 
 def load_source(request):
     '''
-    在诊断-icd匹配和匹配管理中，从config.txt加载icd来源
+    在诊断-icd匹配和匹配管理中，从icd_source.txt加载icd来源
     诊断-icd匹配，默认所有来源全选
     匹配管理，默认选中第一个来源（单选）
     :param request:
@@ -125,16 +127,21 @@ def load_source(request):
         is_radio = request.POST.get("radio", "")
         db = request.POST.get("db", "")
         source_dic = {}
+
         ischeck = {}
-        for line in open("config.txt").readlines():
-            if db in line:
-                t, k, v = line.strip().split(" ")
-                if t == db:
-                    source_dic[v] = k
-                    ischeck[k] = "false" if is_radio else "true"
+        config = json.load(open("config.json"))
+        for abbr, name in config['icd'][db].iteritems():
+            source_dic[name] = abbr
+            ischeck[abbr] = "" if is_radio else "checked"
+        # for line in open(ICD_SOURCE).readlines():
+        #     if db in line:
+        #         t, k, v = line.strip().split(" ")
+        #         if t == db:
+        #             source_dic[v] = k
+        #             ischeck[k] = "false" if is_radio else "true"
 
         if is_radio and ischeck:
-            ischeck[ischeck.keys()[0]] = "true"
+            ischeck[ischeck.keys()[0]] = "checked"
 
         files = load_files()
 
@@ -224,13 +231,13 @@ def show_hint(request):
 
         res = search_items(keyword, icds, source)
 
-        res = res[:10] if len(res) > 10 else res
+        res = res[:utils.ICD_MATCH_COUNT] if len(res) > utils.ICD_MATCH_COUNT else res
 
         data = {}
         for r in res:
             icd, code = r.split("(")
             data[icd] = code
-        # 取前10个匹配值
+        # 取前n个匹配值
         return HttpResponse(json.dumps({"res": data}), content_type='application/json')
 
 
@@ -262,7 +269,7 @@ def search_from_keyword(request):
 
         res = {}
         i = 0
-        for s in search(prefix + "-" + index, keyword, 10):
+        for s in search(prefix + "-" + index, keyword, utils.ICD_MATCH_COUNT):
             icd, code = s["_source"]["icd"], s["_source"]["code"]
             res[i] = [icd, code]
             i += 1
@@ -280,15 +287,14 @@ def search_all(index):
     return res
 
 
-def search(index, keyword, size=10):
+def search(index, keyword, size=utils.ICD_MATCH_COUNT):
     '''
     按icd,code搜索
-    :param index:
-    :param keyword:
-    :param size:
+    :param index: 数据库名
+    :param keyword: 查找关键词
+    :param size: 返回结果数（config.txt里定义）
     :return:
     '''
-    # size:返回结果数，默认是10
     # res = es.search(index=index, body={"query": {"match": {"icd":keyword}},"size":size})
     res = es.search(index=index, body={
         # "query": {"multi_match": {
@@ -341,18 +347,25 @@ def search(index, keyword, size=10):
 # 用于智能提示，一次全加载还是？
 
 def compile_config_source(item):
-    if item=="zhenduan":
+    if item == "zhenduan":
         return "zd"
-    if item=="shoushu":
+    if item == "shoushu":
         return "ss"
     else:
         return item.lower()
 
-source_list = []
-for line in open("config.txt").readlines():
-    t, k, v = line.strip().split(" ")
-    source_list.append(compile_config_source(t)+"-icd-"+compile_config_source(k))
 
+source_list = []
+
+ischeck = {}
+config = json.load(open("config.json"))
+for db, v in config['icd'].iteritems():
+    for abbr,name in v.iteritems():
+        source_list.append(compile_config_source(db) + "-icd-" + compile_config_source(abbr))
+
+# for line in open(ICD_SOURCE).readlines():
+#     t, k, v = line.strip().split(" ")
+#     source_list.append(compile_config_source(t) + "-icd-" + compile_config_source(k))
 
 for source in source_list:
     icds_all = search_all(source)

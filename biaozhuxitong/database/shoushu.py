@@ -56,6 +56,8 @@ class ShouShu():
 
     # def insert_segments(self, data):
     #     mongo.insert_segments(self.zd_segment, data)
+    def is_sug_exist(self,seg,sug):
+        return mongo.is_sug_exist(self.zd_suggest,seg,sug)
 
     def insert_suggests(self, data, cover=False):
         return mongo.insert_suggests(self.zd_suggest, data, cover)
@@ -70,7 +72,7 @@ class ShouShu():
     #     mongo.update_seg_state(self.zd_segment, seg)
 
     def update_sug_state(self, sug):
-        mongo.update_sug_state(self.zd_suggest, sug)
+        return mongo.update_sug_state(self.zd_suggest, sug)
 
     def update_sug_category(self, dict):
         mongo.update_sug_category(self.zd_suggest, dict)

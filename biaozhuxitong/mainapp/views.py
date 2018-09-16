@@ -15,6 +15,10 @@ import requests
 import sys
 
 
+# import gensim
+
+# bcjl_model = gensim.models.Word2Vec.load("bcjl_size200.model")
+
 def main_page(request):
     '''
     起始页
@@ -25,7 +29,6 @@ def main_page(request):
         return HttpResponseRedirect("/login/")
     else:
         # 所选术语集类型
-
         if utils.SESSION_ORIGIN_FILE in request.session.keys():
             del request.session[utils.SESSION_ORIGIN_FILE]
         if utils.SESSION_DB not in request.session.keys():
@@ -42,9 +45,6 @@ def get_session(request):
     :return:
     '''
     if request.method == "POST":
-        # db = request.POST.get("db", "")
-        # if db:
-        #     request.session[utils.SESSION_DB] = db
         utils.update_db(request)
         dic = {}
         dic['username'] = request.session.get(utils.SESSION_USER, "")
@@ -109,13 +109,6 @@ def upload_file(request):
 
         utils.write_to_file(myFile, os.path.join(utils.DIR_UPLOADS, upload_filename), ext)
 
-        # destination = open(os.path.join("uploads/", upload_filename), 'wb+')  # 打开特定的文件进行二进制的写操作
-        # for chunk in myFile.chunks():  # 分块写入文件
-        #     if ext == "txt" or ext == "csv":  # 只有文本文档涉及编码
-        #         chunk = utils.convert_unicode(chunk)
-        #     destination.write(chunk)
-        # destination.close()
-
         if ext == "txt" or ext == "csv":
             total = len(open(os.path.join(utils.DIR_UPLOADS, upload_filename)).readlines())
         elif ext == "xls" or ext == "xlsx":
@@ -133,6 +126,10 @@ def upload_file(request):
                      dbinfo.FILE_DATE: date, dbinfo.FILE_CHECKED: 0}
         utils.get_database(request.session.get(utils.SESSION_DB, "")).insert_file(file_dict)
 
+        # 上传文件信息写入log
+        utils.logger_file_info(request.session.get(utils.SESSION_USER, ""), "上传分词标注文件",
+                               request.session.get(utils.SESSION_DB, ""), myFile.name)
+
         request.session[utils.SESSION_ORIGIN_FILE] = myFile.name
 
         return HttpResponse("")
@@ -146,6 +143,56 @@ def update_category(request):
 
     return HttpResponse(json.dumps(dic), content_type='application/json')
 
+
 def help(request):
     return render_to_response("help.html", "")
 
+##########
+# def test(request):
+#     return render_to_response("1.html", "")
+
+# def test_ajax(request):
+#
+#     '''
+#     :param request:
+#     :return:
+#     '''
+#     try:
+#         term = request.POST.get("term","")
+#
+#         dic = {u"部位": 0, u"中心词": 0, u"病因": 0, u"病理": 0, u"特征词": 0, u"连接词": 0, u"判断词": 0, u"其他": 0,u"未知":0}
+#         similarity={}
+#         weight = 2
+#         i=0
+#         for m in bcjl_model.most_similar([str(term)]):
+#             weight -= 0.2
+#             try:
+#                 a = utils.get_database("zhenduan").get_suggest_from_seg(m[0])[0]
+#                 dic[a["sug"]] += m[1] + weight
+#                 similarity[str(i)] = [m[0],a["sug"],round(m[1],4)]
+#                 i+=1
+#             except:
+#                 # dic[u"未知"]+= m[1] + weight
+#                 similarity[str(i)] = [m[0], u"未知", round(m[1], 4)]
+#                 i+=1
+#
+#         sug = sorted(dic.items(), key=lambda x: x[1], reverse=True)[0]
+#     except Exception,e:
+#         exc_type, exc_obj, exc_tb = sys.exc_info()
+#         f = open("test_error.txt","aw")
+#         f.write(e.message)
+#         f.write(str(exc_tb.tb_lineno))
+#
+#     # sum = 0
+#     # for k, v in dic.iteritems():
+#     #     sum += v
+#     # rate = dic[sug[0]] / sum * 100
+#
+#     # similarity=bcjl_model.most_similar([str(term)])
+#
+#     '''
+#     测试
+#     肝功能损害，心肌梗塞，子宫
+#     '''
+#
+#     return HttpResponse(json.dumps({"res":sug,"predict":similarity}), content_type='application/json')
