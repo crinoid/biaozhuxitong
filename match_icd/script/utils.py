@@ -11,11 +11,10 @@ from pyfasttext import FastText
 import jieba
 
 
-SERVICE_URL_SS = "http://127.0.0.1:8001/service"
+SERVICE_URL_SS = "http://127.0.0.1:8001/seg"
 SERVICE_URL_ZD2 = "http://127.0.0.1:8002/service" #大粒度
 SERVICE_URL_ZD = "http://127.0.0.1:8006/service" #小粒度
-# SERVICE_URL_SS = "http://172.19.91.91:8001/service"
-# SERVICE_URL_ZD = "http://172.19.91.91:8002/service"
+SERVICE_URL_ZD_SEG = "http://127.0.0.1:8006/seg" #小粒度
 
 HEADERS = {'content-type': 'application/json'}
 
@@ -214,6 +213,15 @@ def most_similar_n(term,data_list,t,size,n=1):
                     return res
     return res
 
+def compare_word_similarity(a,b):
+    '''
+
+    :param a:
+    :param b:
+    :return:
+    '''
+    return ft_model.similarity(a,b)
+
 # item不能包含exclude里的元素
 def is_in(item,exclude):
     for e in exclude:
@@ -239,43 +247,6 @@ def add(match_group, icds, term):
         pass
     return match_group
 
-# split_corewords()
-# get_suggest()
-# split_specific_words()
-# seg_cores()
-# update_from_file()
-
-# icd_service(["急性脑梗死"], ["LC"])
-# icd_code_service(["R23","R24"], ["BJ","GB","LC"])
-
-# print db.zd_suggest.find_one({"seg":"阑尾切除术"})
-
-# predict_category("肩胛骨")
-# t,r = predict_category("结节")
-# print t,r[0],r[1]
-
-
-# print ft_model.similarity("喉发炎", "麻疹并发喉炎")
-# print ft_model.similarity("喉发炎", "急性咽喉炎")
-# print ft_model.similarity("升结肠占位", "升结肠良性肿瘤")
-
-# all= db.zd_suggest.find()
-
-# print file_compare("../data/icd/cache/shoushu/BJ_icd_name.csv","../data/icd/tmp/shoushu/BJ_icd_name_shoushu.csv")
-
-# from fuzzywuzzy import fuzz
-# print fuzz.token_sort_ratio(u"喉 发 炎",u"麻 疹 并 发 喉 炎",force_ascii=False)
-# print fuzz.token_sort_ratio(u"喉 发 炎",u"急 性 咽 喉 炎",force_ascii=False)
-# print fuzz.token_set_ratio(u"肝 多 发 囊 肿",u"多 囊 肝 发 啊",force_ascii=False)
-# print fuzz.token_sort_ratio(u"肝 多 发 囊 肿",u"多 囊 肝 发 啊",force_ascii=False)
-# print fuzz.token_sort_ratio(u"肝 多 发 囊 肿",u"囊 肿 肝 多 发",force_ascii=False)
-
-
-# print auto_match(u"面骨",5)
-
-# print "pppp"
-
-# db.zd_suggest.remove({"seg":"病率"})
 
 # 给定一个未知词，从词库中找到最相似的
 def get_top_similarity(term,term_list):
@@ -287,21 +258,7 @@ def get_top_similarity(term,term_list):
 def remove_space(a):
     return a.replace("\n","").decode('utf8')
 
-# term_core=map(remove_space,open("cores.txt").readlines())
-# term_region=map(remove_space,open("regions.txt").readlines())
-# get_top_similarity("肝曲",term_region)
-# get_top_similarity("肺部",term_core)
 
 def to_string(a):
     return str(a)
 
-# f=open("../data/bcjl_model1.vec","aw")
-# f.write("夹层 ")
-# f.write(" ".join(map(to_string,ft_model.get_numpy_vector("夹层"))))
-
-# print ft_model.get_numpy_vector("无",normalized=True)
-
-# from gensim.models.keyedvectors import KeyedVectors
-# zh_vec_model = KeyedVectors.load_word2vec_format('../data/bcjl_model1.vec',binary=False)
-# for i in zh_vec_model.most_similar(u"肺部"):
-#     print i[0],i[1]

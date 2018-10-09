@@ -120,6 +120,14 @@ class MatchingICD(object):
 
         return content
 
+    def remove_punctuation(self,content):
+        punctuation = [
+            (u',', u',',u'(', u')', u'.',u';', u':', u'"', u'-', u'', u'', u'')
+        ]
+        for p in punctuation:
+            content=content.replace(p,"")
+        return content
+
     def build_syn_dic(self):
         syn_dict = {}
         for line in open(syn_file_path).readlines():

@@ -36,6 +36,42 @@ def get_config(type):
     return source_dic
 
 
+def replace_punctuation(content):
+    if isinstance(content, float):
+        return str(content)
+
+    _chinese_english = [
+        (u'，', u','),
+        (u'、', u','),
+        (u'（', u'('),
+        (u'）', u')'),
+        (u'。', u'.'),
+        (u'；', u';'),
+        (u'：', u':'),
+        (u'“', u'"'),
+        (u'－', u'-'),
+        (u' ', u''),
+        (u'°', u''),
+        (u'？', u'')
+    ]
+    for i in _chinese_english:
+        content = content.replace(i[0], i[1]).upper()
+
+    _filter_punctuation = [u'"', u'\'']
+    for i in _filter_punctuation:
+        content = content.replace(i, u'')
+
+    return content
+
+def remove_punctuation(content):
+    punctuation = [
+        u',', u',', u'(', u')', u'.', u';', u':', u'"', u'-', u'', u'', u''
+    ]
+    for p in punctuation:
+        content = content.replace(p, "")
+    return content
+
+
 def pre_load(source_dic, CACHE_PATH, TMP_PATH, update_types):
     '''
     检查icd_name是否更新，若更新，重新生成cache文件，并更新tmp文件
@@ -214,29 +250,32 @@ def match_all_code(icd_list, code_list, source_list, pos, size):
 
 
 def update_res(old_data, new_data):
-    if old_data:
-        res = {}
-        for k, v in new_data.iteritems():
-            new_list = []
-            top = old_data[k][0][2]
-            i = 0
-            j = 0
-            while i < len(v) and j<len(old_data[k]):
-                if v[i][2] > top:
-                    new_list.append(v[i])
-                    i += 1
-                    top = old_data[k][j][2]
-                else:
-                    new_list.append(old_data[k][j])
-                    j += 1
-                    top = v[i][2]
-                if len(new_list) == MATCH_COUNT:
-                    break
-            if len(new_list)<MATCH_COUNT and j<len(old_data[k])-1:
-                while j<len(old_data[k]):
-                    new_list.append(old_data[k][j])
-            res[k] = new_list
-    else:
+    try:
+        if old_data:
+            res = {}
+            for k, v in new_data.iteritems():
+                new_list = []
+                top = old_data[k][0][2]
+                i = 0
+                j = 0
+                while i < len(v) and j<len(old_data[k]):
+                    if v[i][2] > top:
+                        new_list.append(v[i])
+                        i += 1
+                        top = old_data[k][j][2]
+                    else:
+                        new_list.append(old_data[k][j])
+                        j += 1
+                        top = v[i][2]
+                    if len(new_list) == MATCH_COUNT:
+                        break
+                if len(new_list)<MATCH_COUNT and j<len(old_data[k])-1:
+                    while j<len(old_data[k]):
+                        new_list.append(old_data[k][j])
+                res[k] = new_list
+        else:
+            res=new_data
+    except Exception,e:
         res=new_data
 
         # if k in res.keys():
@@ -328,7 +367,8 @@ def check_region(diagnose, region_list,region):
 
 def icd_part_in_dis(icd_list, dis, icd, source,types):
     try:
-        source = get_source_code(source)
+        # source = get_source_code(source)
+        source="LC"
         icd_dic = eval(icd_list[source]['norm'][icd][0])
         dis_rep = replace_digits(dis)
 
@@ -455,16 +495,15 @@ def replace_punctuation(content):
         (u'：', u':'),
         (u'“', u'"'),
         (u'－', u'-'),
-        (u' ', u''),
         (u'°', u''),
         (u'？', u'')
     ]
     for i in _chinese_english:
         content = content.replace(i[0], i[1]).upper()
 
-    _filter_punctuation = [u'"', u'\'']
-    for i in _filter_punctuation:
-        content = content.replace(i, u'')
+    # _filter_punctuation = [u'"', u'\'']
+    # for i in _filter_punctuation:
+    #     content = content.replace(i, u'')
 
     return content
 
