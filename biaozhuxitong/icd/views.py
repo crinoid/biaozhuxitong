@@ -171,10 +171,15 @@ def match_icd(request):
                             headers=utils.headers).content.decode('utf8')
         res = eval(res)  # [icd,icd_code,score]
 
-        for k, v in res.iteritems():
-            for i in range(len(v)):
-                v[i].append(get_match_characters(v[i][0], dis))
-                res[k][i] = v[i]
+        # for k, v in res.iteritems():
+        #     for i in range(len(v)):
+        #         v[i].append(get_match_characters(v[i][0], dis))
+        #         res[k][i] = v[i]
+
+        for item in res["res"]:
+            for i in range(len(item[1])):
+                item[1][i].append(get_match_characters(item[1][i][0], dis))
+                res["res"][0][1]= item[1]
 
         return HttpResponse(json.dumps(res), content_type='application/json')
 

@@ -24,7 +24,6 @@ from suggest import views as suggest_views
 from management import views as management_views
 from management import log_views as log_views
 from icd import views as icd_views
-from structed import views as structed_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

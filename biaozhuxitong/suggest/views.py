@@ -10,7 +10,7 @@ import logging
 import requests
 import sys
 
-# from pyfasttext import FastText
+from pyfasttext import FastText
 
 error_logger = logging.getLogger('error')
 
@@ -115,8 +115,8 @@ def get_sug_from_disk(new_sugs, ft_model, dbname):
                 tmp = []
                 for sug1 in sugs:  # sug1["高血压","中心词"]
                     if sug1[1] == "":
-                        # sug1[1] = utils.auto_match(sug1[0], dbname, 10)
-                        sug1[1] = u"未知"
+                        sug1[1] = utils.auto_match(sug1[0], dbname, 10)
+                        # sug1[1] = u"未知"
                     tmp.append([sug1[0], sug1[1]])
                 if tmp:
                     info_sug.append(tmp)
@@ -214,7 +214,7 @@ def sort_sugs_by_category(origin_msg, origin_file, new_segs, ft_model, username,
             for sug1 in sugs:
                 if sug1[1] == "":
                     # 未知分词使用fasttext推测
-                    # sug1[1] = utils.auto_match(sug1[0], dbname, 10)
+                    sug1[1] = utils.auto_match(sug1[0], dbname, 10)
                     # sug1[1] = u"未知"
                     if sug1[1]==u"未知":
                         is_unknown = True
