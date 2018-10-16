@@ -6,6 +6,9 @@ from flask import request
 from seg_zhenduan import seg_sentences, seg_sentences_array, update_segment, get_seg_dic
 from sug_zhenduan import sugss, sug_sentence, update_suggestion, get_sug_dic
 
+import base64
+import json
+
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
@@ -15,20 +18,47 @@ def service():
     if not request.json:
         abort(400)
     try:
-        json = request.get_json()
-        # print json
-        if "seg_para" in json.keys():
-            result_seg = seg_sentences(json["diag"],json["seg_para"])
+        json_data = request.get_json()
+        if "seg_para" in json_data.keys():
+            result_seg = seg_sentences_array(json_data["diag"],json_data["seg_para"])
         else:
-            result_seg = seg_sentences(json["diag"])
+            result_seg = seg_sentences_array(json_data["diag"])
         # print result_seg
-        result_sug = sugss(result_seg)
+        if "encode" in json_data.keys():
+            result_sug = sugss(result_seg,is_encode=True)
+        else:
+            result_sug = sugss(result_seg)
+    except Exception,e:
+        print e.message
+        abort(400)
+    if "encode" in json_data.keys():
+        try:
+            result_sug=json.dumps(result_sug, ensure_ascii=False)
+            print result_sug
+            result_sug=base64.b64encode(result_sug)
+            print result_sug
+        except Exception,e:
+            print e.message
+        # return result_sug
+    return jsonify(result_sug)
+
+
+@app.route('/service_xml', methods=['POST'])
+def service_xml():
+    if not request.json:
+        abort(400)
+    try:
+        json_data = request.get_json()
+        if "seg_para" in json.keys():
+            result_seg = seg_sentences_array(json_data["diag"],json_data["seg_para"])
+        else:
+            result_seg = seg_sentences_array(json_data["diag"])
+        result_sug = sugss(result_seg,is_xml=True)
     except:
         abort(400)
 
-    return jsonify(result_sug)
+    return result_sug
 
-#分词-标注一体的标注部分
 @app.route('/sugs', methods=['POST'])
 def sugs():
     if not request.json:
@@ -79,7 +109,7 @@ def sug_service():
         abort(400)
     try:
         result = sug_sentence(request.get_json())
-        print result, jsonify(result)
+        # print result, jsonify(result)
     except:
         abort(400)
 
@@ -123,3 +153,9 @@ if __name__ == '__main__':
             # host='0.0.0.0',
             port=8002
     )
+
+# result_seg = seg_sentences_array(["高血压2级"])
+# result_seg={u"高血压":[u"2级"]}
+# import json
+# new_seg = json.dumps(result_seg, ensure_ascii=True)
+# print type(new_seg)

@@ -8,8 +8,8 @@ from flask import Flask, jsonify
 from flask import abort
 from flask import request
 
-from seg_zhenduan import seg_sentences, seg_sentences_array, update_segment, get_seg_dic
-from sug_zhenduan import sugss, sug_sentence, update_suggestion, get_sug_dic
+from seg_zhenduan_sm import seg_sentences, seg_sentences_array, update_segment, get_seg_dic
+from sug_zhenduan_sm import sugss, sug_sentence, update_suggestion, get_sug_dic
 
 
 app = Flask(__name__)
@@ -126,11 +126,16 @@ def get_sugs():
     return jsonify(result)
 
 
-if __name__ == '__main__':
-    app.run(
-            # host='0.0.0.0',
-            port=8006
-    )
+# if __name__ == '__main__':
+#     app.run(
+#             # host='0.0.0.0',
+#             port=8006
+#     )
 
 
-print sugss(seg_sentences([u"肋骨骨折"]))
+# print sugss(seg_sentences([u"反复低血糖"]))
+# import requests
+# import json
+# terms_dict = requests.post("http://127.0.0.1:8006/service", data=json.dumps({"diag": ["肋骨骨折"], "seg_para": False}),
+#                            headers={'content-type': 'application/json'}).content.decode('utf8')
+# print terms_dict

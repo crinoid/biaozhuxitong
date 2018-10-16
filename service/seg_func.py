@@ -236,7 +236,7 @@ def seg_sentences_array(sentences,segment,seg_para=True):
         segs = segment.seg(post_sentence)
         r = map(upper_lower, [sentence] * len(segs), segs)
         result.extend(r)
-        result_dic.append((sentence, result))  # 高血压2级:[高血压,2级]
+        result_dic.append([sentence, result])  # 高血压2级:[高血压,2级]
 
     output_dic["diag"] = result_dic  # 诊断:{高血压2级:[高血压,2级],多根肋骨骨折:[多根,肋骨骨折]}
 

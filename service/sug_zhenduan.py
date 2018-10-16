@@ -9,8 +9,8 @@ from sug_func import sug_sentence as sug_sent
 from sug_func import update_suggestion as update_sug
 from sug_func import get_sug_dic as get_sug_d
 
-def sugss(sentences):
-    return sugs(sentences,suggestion)
+def sugss(sentences,is_xml=False,is_encode=False):
+    return sugs(sentences,suggestion,is_xml,is_encode)
 
 def sug_sentence(sentences):
     return sug_sent(sentences,suggestion)
@@ -34,3 +34,4 @@ for line in data:
 
 suggestion = Sug4Category(data2)
 
+# print sugss({"diag":[["高血压2级",["高血压","2级"]],]},is_encode=True)

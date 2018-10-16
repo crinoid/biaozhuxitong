@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 import copy
 
-
+import sys
 class Sug4Category(object):
     suffix_words = u'症$|后$|型$|期$|史$|程$|级$|性$|区$|周$|天$'
 
@@ -86,65 +86,89 @@ def sug_sentence(sentences,suggestion):
 
 
 # 分词-标注一体的服务
-def sugss(items,suggestion):
-    # {key:{高血压2级:[高血压,2级]}}}
-    result_dic = {}
-    sentence_dic = {}
-    sug_dic = OrderedDict()
+def sugss(items,suggestion,is_xml=False,is_encode=False):
+    '''
 
-    def build(sentence):
-        segs=sentences[sentence]
-        sug_dic = OrderedDict()
-        # map(build2,segs)
-        sug_dic['原文'] = sentence
-        for seg in segs:
-            for sugs in suggestion.sug(seg):
-                value = sugs[0]
-                if sugs[1] == None:  # 不在词库中
-                    key = "未知"
-                else:
-                    if type(sugs[1])==unicode:
-                        key = sugs[1].encode('utf8')
+    :param items: {diag: [高血压2级, [高血压, 2级]}]}
+    :param suggestion:
+    :return: [原文:高血压2级，中心词:[高血压]，特征词:[2级]]
+    '''
+    # {key:{高血压2级:[高血压,2级]}}}
+    # items:
+    result_dic = []
+    try:
+        xml_text=""
+        for item in items["diag"]:
+            if is_encode:
+                sug_dic = {}
+                sug_dic['原文'] = item[0]
+                for sugs in suggestion.sug(";".join(item[1])):
+                    value = sugs[0]
+                    if sugs[1] == None:  # 不在词库中
+                        key = "未知"
                     else:
-                        key = sugs[1]
+                        key = sugs[1].encode('utf8')
+                    if key not in sug_dic.keys():
+                        sug_dic[key] = []
+                    sug_dic[key].append(value)
+                result_dic.append(sug_dic)
+
+                return result_dic
+
+
+
+            sug_dic = {}
+            # 写个转unicode的方法
+            if type(item[0]) == str:
+                item[0] = item[0].decode('utf8')
+            sug_dic[u'原文'] = item[0]
+            for sugs in suggestion.sug(";".join(item[1])):
+                value = sugs[0]
+                if type(value)==str:
+                    value=value.decode('utf8')
+                if sugs[1] == None:  # 不在词库中
+                    key = u"未知"
+                else:
+                    key = sugs[1]
                 if key not in sug_dic.keys():
                     sug_dic[key] = []
                 sug_dic[key].append(value)
-        s_list.append(sug_dic)
-
-    def build2(seg):
-        map(build3,suggestion.sug(seg))
-
-    def build3(sugs):
-        global sug_dic
-        value = sugs[0]
-        if sugs[1] == None:  # 不在词库中
-            key = "未知"
-        else:
-            key = sugs[1]
-        if key not in sug_dic.keys():
-            sug_dic[key] = []
-        sug_dic[key].append(value)
+            result_dic.append(sug_dic)
 
 
-    for k, sentences in items.iteritems():
-        s_list = []
-        map(build,sentences.keys())
-        # for sentence, segs in sentences.iteritems():
-        #     sug_dic = OrderedDict()
-        #     sug_dic[u'原文'] = sentence
-        #     for seg in segs:
-        #         for sugs in suggestion.sug(seg):
-        #             value = sugs[0]
-        #             if sugs[1] == None:  # 不在词库中
-        #                 key = u"未知"
-        #             else:
-        #                 key = sugs[1]
-        #             if key not in sug_dic.keys():
-        #                 sug_dic[key] = []
-        #             sug_dic[key].append(value)
-        #     s_list.append(sug_dic)
-        result_dic[k] = s_list
+            reflection={
+                # "原文":"source",
+                u"部位":"region",
+                u"中心词":"core",
+                u"特征词": "feature",
+                u"判断词": "judgement",
+                u"连接词": "connection",
+                u"病因": "pathogeny",
+                u"病理": "pathology",
+                u"药品": "medicine",
+                u"其他": "others",
+                u"未知": "unknown",
+            }
+            if is_xml:
+                # 不要用unicode，用str(ascii)
+                xml_text="<source>"+sug_dic[u"原文"]
+                for sug,terms in sug_dic.iteritems():
+                    if sug!=u"原文":
+                        sug = reflection[sug]
+                        for term in terms:
+                            xml_text+="<"+sug+">"+term
+                        xml_text+="<"+sug+"/>"
+                xml_text+="</source>"
+        if is_xml:
+            return xml_text
+
+
+    except Exception,e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        f = open("error.txt","w")
+        f.write(e.message)
+        f.write(str(exc_tb.tb_lineno))
+        return str(exc_tb.tb_lineno)
     return result_dic
 
 # 判断分词-标注是否已存在
