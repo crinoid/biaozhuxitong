@@ -1,0 +1,66 @@
+.title-div {
+  padding: 2px 10px 5px 30px;
+  background-color: #2e6da4;
+  color: white;
+  height: 72px;
+}
+
+.title-div a:hover {
+  text-decoration: none;
+  color: white;
+}
+
+.title {
+  float: left;
+  width: 50%;
+  height: 70px;
+}
+
+.title a {
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+}
+
+.user-info {
+  height: 60px;
+  float: right;
+  padding-right: 80px;
+  padding-top: 5px;
+}
+
+#logout {
+  color: #d0e9c6;
+  padding-left: 15px;
+}
+
+.sub-btn {
+  border: 1px solid #ccc;
+  background-color: #faf2cc;
+  border-radius: 0;
+}
+
+#top li {
+  float: left;
+  text-decoration: none;
+  list-style: none;
+  width: 80px;
+  height: 42px;
+  padding: 10px;
+  border-radius: 5px 5px 0 0;
+}
+
+#top li:hover {
+  background-color: #eee;
+  color: #555;
+}
+
+#top li a {
+  color: white;
+  text-decoration: none;
+}
+
+.active {
+  color: #555;
+  background-color: #eee;
+}

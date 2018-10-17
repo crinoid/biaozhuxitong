@@ -1,0 +1,101 @@
+.sub-frame{
+  padding-left: 5%;
+  padding-right: 5%;
+}
+.report-frame {
+  margin: 20px 0 10px 0;
+  padding: 5px;
+  font-size: 16px
+}
+
+.report-section {
+  padding: 0 5px;
+}
+
+.sub-title {
+  border-bottom: 1px solid #ccc;
+  font-size: 20px;
+  padding-top: 20px;
+  color: dimgrey;
+}
+
+.msg {
+  font-size: 18px;
+  color: #31b0d5;
+}
+
+.cut-frame {
+  margin: 10px 0;
+  padding: 5px 10px;
+  height: 50px;
+}
+
+.cut {
+  color: #2e6da4;
+  float: left;
+  border-radius: 5px;
+  margin: 2px 5px;
+  padding: 2px 5px;
+}
+
+.seg-struct {
+  color: #2e6da4;
+  border: 1px solid lightskyblue;
+    border-radius: 5px;
+    margin: 2px 5px;
+    padding: 2px 5px;
+    font-size: 18px;
+}
+
+.seg-text{
+  font-size: 18px;
+  background-color: white;
+}
+
+.sug-text{
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.seg-border{
+    border: 1px solid lightskyblue;
+}
+
+.sug-border {
+    color: #333;
+    border:2px solid whitesmoke;
+}
+
+.char {
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.button {
+  float: right;
+  margin-top: 10px;
+}
+
+button {
+  font-size: 20px;
+}
+
+ul li {
+    margin: 2px 0;
+    cursor: pointer;
+}
+
+ul li div {
+    padding: 4px 0;
+}
+
+.selected-item:hover {
+    background-color: #e6e6e6;
+}
+
+.color-list {
+    float: left;
+    width: 20px;
+    height: 20px;
+    margin: 0px 4px 0px 20px
+}

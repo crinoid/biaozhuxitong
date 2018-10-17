@@ -1,0 +1,45 @@
+<template id="datafile">
+    <div id="box">
+        <div id="group" style="padding-left: 3%; padding-right: 3%; ">
+            <div style="width: 90%;">
+                <div class="sub-title">新增数据
+                    <span style="font-size: 14px;color: #2e6da4;float: right;margin-right:20px">
+                    <button class="btn btn-link" @click="downloadSug()">下载</button>
+                    </span>
+                </div>
+                <table id="table2" class="table table-striped table-hover" style="margin: 0 auto;width: 90%">
+                    <thead style="font-weight: bold">
+                    <tr>
+                        <td><input type="checkbox" id="checkAll" name="checkAll"
+                                   onclick="checkAllTable(this,$('#table2 tbody tr'))"/></td>
+                        <td>分词-标注</td>
+                        <td>标注推理路径</td>
+                        <td>次数</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="f in sugs">
+                        <td><input type="checkbox" name="checkItem"
+                                   onclick="selectItemTable(this,$('#table2 thead tr'),$('#table2 tbody tr'),
+                               $('#table1 tbody tr td'))"/>
+                        </td>
+                        <td>
+                            <span v-text="f.seg"></span>-<span v-text="f.sug"></span>
+                        </td>
+                        <td>
+                            <div v-for="s in f.sug_source.split(',')" v-text="s">
+                            </div>
+                        </td>
+                        <td v-text="f.count"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="width: 100%;padding-left: 85%;padding-top: 20px">
+                <button class="btn btn-success" @click="addData()">保存</button>
+                <button class="btn btn-danger" @click="deleteData()">删除</button>
+            </div>
+        </div>
+    </div>
+</template>
+<script src="/static/js/router/checkbox.js"></script>

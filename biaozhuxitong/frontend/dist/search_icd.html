@@ -1,0 +1,164 @@
+<template id="search_icd">
+    <div id="group" style="padding: 0 40px;" @click="hide_box()">
+        <div style="float:left; width: 40%;height: 200px;">
+            <div style="float:left; width: 100%;height: 50px">
+                <input id="f_upload" type="file" name="myfile" style="float:left;" onchange="fileChanged()"/>
+                <!--查看文件列表-->
+                <div style="float: left;padding-right: 40px">
+                    <input type="submit" id="submit" class="btn btn-primary btn-xs" value="上传数据" disabled="disabled"
+                           @click="upload()"/>
+                    <input type="submit" id="alldiagfiles" class="btn btn-warning btn-xs" value="查看文件"
+                           onclick="isshow()"/>
+                    <a class="glyphicon glyphicon-question-sign" href="/help/#mgr_icd_code" target="_blank"></a>
+                    <div id="icd_files"
+                         style="background-color: #fafafa;display: none; border: 1px solid #ccc; width: 150px;height: 400px; position: relative;top:-20px;left:130px;z-index: 100"
+                         onmouseleave="isshow()">
+                        <div v-for="file in diag_files" style="padding: 5px 10px">
+                            <a v-text="file['file']" @click="select_file(file['code'])"></a>
+                            <span class="glyphicon glyphicon-remove" @click="delete_file(file['code'])"></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="icd_data_hint"
+                         style="background-image:url('/static/img/origin_data_diag.png');width: 250px;height: 350px;z-index: 110;
+                     position:relative;display:none;left:208px;top:15px">
+                        <div style="padding: 40px 20px;">
+                            上传文件类型：.csv, .txt<br>
+                            上传文件格式：
+                            <div style="color: #da2626;padding:10px 0px 10px 30px">
+                                编目内容（每行一条）
+                            </div>
+                            <div style="border-bottom: 1px solid #ccc;padding-top: 10px">
+                            示例：
+                        </div>
+                        <ul style="list-style:none">
+                            <li>甲状腺回声不均</li>
+                            <li>胃肠功能紊乱可能性大</li>
+                            <li>胆囊切除术后</li>
+                        </ul>
+                            <div style="border-bottom: 1px solid #ccc;padding-top: 10px">
+                            编目匹配方法：
+                        </div>
+                            关键字搜索，点击搜索的结果，更新编目匹配
+                        </div>
+
+                    </div>
+            </div>
+
+            <div style="padding: 10px 0 0 20px">
+                <!--原文内容（诊断，手术）-->
+                <div style="margin:0 auto; padding: 10px 0; font-size: 18px;color:#2e6da4;width: 100%">
+                    <span v-text="diag_list[cur_diag_idx]"></span>
+                </div>
+                <!--匹配结果-->
+                <div style="border-top: 1px solid #ccc;padding: 10px 0 40px 0">
+                    <ul style="list-style-type:none" v-if="diag_list.length>0">
+                        <li v-for="k,v in source_dic">
+                            <span v-text="v" style="color: #333333"></span>：
+                            <span style="color: #eea236;">
+                            <span v-text="diag_match[diag_list[cur_diag_idx]][k]['icd']"></span>
+                            <span v-text="diag_match[diag_list[cur_diag_idx]][k]['code']"></span>
+                                </span>
+                        </li>
+                    </ul>
+                </div>
+                <div style="width: 100%;height: 40px">
+                    <div style="border: 1px solid lightblue;border-radius:5px;padding:5px;color:#1b6d85;float: left"
+                         @click="prev_diag()">
+                        上一条
+                    </div>
+                    <div style="border: 1px solid lightblue;border-radius:5px;padding:5px;color:#1b6d85;float: right"
+                         @click="next_diag()">
+                        下一条
+                    </div>
+                </div>
+                <div style="float: right;padding-top: 40px">
+                    <input type="button" class="btn btn-success" value="提交" @click="submit_icd()">
+                </div>
+            </div>
+        </div>
+        <div style="float: right;width: 54%">
+            <div style="width: 100%;height: 30px">
+                <div v-for="k,v in source_dic" style="float:left;padding-right: 10px;">
+                    <!--渲染radio，不用v-model，看是否有checked这个属性-->
+                    <input type="radio" :checked="ischeck[k]" name="source" value="k" @click="changeInput(k)">
+                    <span v-text="v"></span>
+                </div>
+            </div>
+            <div style="position: absolute;z-index: 200;padding-right: 40px">
+                <!--搜索框-->
+                <div class="input-group">
+                    <input id="keyword" @keyup="changeKeyword()" type="text" class="inputElem form-control"
+                           style="width:100%;">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" @click="search_keyword()">
+                            <span class="glyphicon glyphicon-search"></span></button>
+                                </span>
+                    <input type="hidden"/>
+
+                </div>
+                <!--搜索自动提示-->
+                <div style="border: 1px solid #ccc; width: 100%;background-color: #f8fcff">
+                    <div class="hints_item" v-for="k,v in hints"
+                         style="height: 30px;border-bottom: 1px solid #ccc;padding: 5px 0 0 10px" @click="update(v,k)">
+                        <span v-text="v"></span>
+                        (<span v-text="k"></span>)
+                    </div>
+                </div>
+            </div>
+            <!--搜索结果-->
+            <div style="padding-top: 40px">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td>icd</td>
+                        <td>编码</td>
+                    </tr>
+                    </thead>
+                    <tbody id="icds">
+                    <tr v-for="k in result" @click="update_icd(k)">
+                        <td v-text="k[0]">
+                        </td>
+                        <td v-text="k[1]">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+<style>
+    #icds tr:hover {
+        background-color: #eaeaea;
+        cursor: pointer;
+    }
+
+    .hints_item:hover {
+        background-color: #ffffff;
+        cursor: pointer;
+    }
+</style>
+<script type="application/javascript">
+    function isshow() {
+        if ($("#icd_files").css("display") == 'none') {
+            $("#icd_files").css("display", '')
+        } else {
+            $("#icd_files").css("display", 'none')
+        }
+    }
+
+    function fileChanged() {
+        $("#submit").attr("disabled", false)
+    }
+
+    function toggle_icd_data_hint(){
+        if ($("#icd_data_hint").css("display") == 'none') {
+            $("#icd_data_hint").css("display",'')
+        } else {
+            $("#icd_data_hint").css("display",'none')
+        }
+    }
+
+</script>

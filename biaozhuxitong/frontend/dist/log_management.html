@@ -1,0 +1,116 @@
+<template id="logmanagement">
+    <div id="box">
+        <div style="padding-left: 5%; padding-right: 5%;">
+            <div style="float: right">
+                <button id="denglu" class="btn btn-info" @click="changeType($event)">登录日志</button>
+                <button id="shuju" class="btn btn-default" @click="changeType($event)">数据操作日志</button>
+                <button id="biaozhu" class="btn btn-default" @click="changeType($event)">编辑标注日志</button>
+                <button id="wenjian" class="btn btn-default" @click="changeType($event)">文件日志</button>
+                {#                <button id="cuowu" class="btn btn-default" @click="changeType($event)">错误日志</button>#}
+            </div>
+            <div v-if="cur_type=='denglu'">
+                <div class="sub-title">登录日志管理</div>
+                <table class="table table-striped table-hover" style="margin: 0 auto;width: 95%">
+                    <thead style="font-weight: bold">
+                    <tr>
+                        <td>用户名</td>
+                        <td>登录时间</td>
+                    </tr>
+                    </thead>
+                    <tr v-for="login in cur_items">
+                        <td v-text="login.username"></td>
+                        <td v-text="login.date"></td>
+                    </tr>
+                </table>
+            </div>
+            <div v-if="cur_type=='shuju'">
+                <div class="sub-title">数据操作日志管理</div>
+                <table class="table table-striped table-hover" style="margin: 0 auto;width: 95%">
+                    <thead style="font-weight: bold">
+                    <tr>
+                        <td>用户名</td>
+                        <td>操作时间</td>
+                        <td>术语集</td>
+                        <td>来源</td>
+                        <td>操作</td>
+                        <td>数据</td>
+                    </tr>
+                    </thead>
+                    <tr v-for="sug in cur_items">
+                        <td v-text="sug.username"></td>
+                        <td v-text="sug.date"></td>
+                        <td v-text="sug.terms"></td>
+                        <td v-text="sug.source"></td>
+                        <td v-text="sug.operation"></td>
+                        <td v-text="sug.data"></td>
+                    </tr>
+                </table>
+            </div>
+            <div v-if="cur_type=='biaozhu'">
+                <div class="sub-title">编辑标注日志管理</div>
+                <table class="table table-striped table-hover" style="margin: 0 auto;width: 95%">
+                    <thead style="font-weight: bold">
+                    <tr>
+                        <td>用户名</td>
+                        <td>操作时间</td>
+                        <td>操作</td>
+                        <td>术语集</td>
+                        <td>数据</td>
+                    </tr>
+                    </thead>
+                    <tr v-for="files in cur_items">
+                        <td v-text="files.username"></td>
+                        <td v-text="files.date"></td>
+                        <td v-text="files.operation"></td>
+                        <td v-text="files.terms"></td>
+                        <td v-text="files.data"></td>
+                    </tr>
+                </table>
+            </div>
+            <div v-if="cur_type=='wenjian'">
+                <div class="sub-title">文件日志管理</div>
+                <table class="table table-striped table-hover" style="margin: 0 auto;width: 95%">
+                    <thead style="font-weight: bold">
+                    <tr>
+                        <td>用户名</td>
+                        <td>操作时间</td>
+                        <td>操作</td>
+                        <td>术语集</td>
+                        <td>文件名</td>
+                    </tr>
+                    </thead>
+                    <tr v-for="files in cur_items">
+                        <td v-text="files.username"></td>
+                        <td v-text="files.date"></td>
+                        <td v-text="files.type"></td>
+                        <td v-text="files.terms"></td>
+                        <td v-text="files.filename"></td>
+                    </tr>
+                </table>
+            </div>
+{#            <div v-if="cur_type=='cuowu'">#}
+{#                <div class="sub-title">错误日志管理</div>#}
+{#                <table class="table table-striped table-hover" style="margin: 0 auto;width: 95%">#}
+{#                    <thead style="font-weight: bold">#}
+{#                    <tr>#}
+{#                        <td>用户名</td>#}
+{#                        <td>操作时间</td>#}
+{#                        <td>错误类型</td>#}
+{#                        <td>描述</td>#}
+{#                    </tr>#}
+{#                    </thead>#}
+{#                    <tr v-for="err in cur_items">#}
+{#                        <td style="width: 100px" v-text="err.username"></td>#}
+{#                        <td style="width: 100px" v-text="err.date"></td>#}
+{#                        <td style="width: 120px" v-text="err.type"></td>#}
+{#                        <td v-text="err.desc"></td>#}
+{#                    </tr>#}
+{#                </table>#}
+{#            </div>#}
+            <div id="page_box">
+                <pg :page_arr="page_arr" :total="total" :total_page="total_page"
+                    v-on:prev_page="prevPage" v-on:next_page="nextPage" v-on:change_page="changePage"></pg>
+            </div>
+        </div>
+    </div>
+</template>

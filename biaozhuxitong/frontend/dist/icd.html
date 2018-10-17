@@ -1,0 +1,60 @@
+<template id="icd">
+    <div id="group">
+        <div class="sub-frame">
+            <div>请输入编目：
+                <div class="input-group">
+                    <input id="diag" ref="diag" type="text" class="inputElem form-control" style="width:100%;"
+                           v-on:keyup.enter="match">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" @click="match()">
+                            <span>确定</span></button>
+                                </span>
+                    <input type="hidden"/>
+
+                </div>
+                <div class="icd-source-outer">
+                    <div class="icd-source-inner">
+                        <div v-for="k,v in source_list" class="icd-source-item">
+                            <input type="checkbox" v-model="ischeck[k]" value="k"><span v-text="v"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding-top: 10px;">
+                匹配结果：
+                <table class="table table-striped icd-result-table">
+                    <thead>
+                    <tr>
+                        <td>序号</td>
+                        <td>icd</td>
+                        <td>编码</td>
+                        <td>编码来源</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="i,v in icds">
+                        <td v-text="get_index(v)"></td>
+                        <td>
+                    <span v-for="c in i[0]">
+                        <span v-if="has_element(i,c)">
+                            <span v-text="c" style="color: red"></span>
+                        </span>
+                        <span v-else>
+                            <span v-text="c"></span>
+                        </span>
+                    </span>
+                        </td>
+                        <td v-text="i[1]"></td>
+                        <td v-text="i[3]"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div v-if="match_result!=''" class="icd-hint">
+                    <div class="icd-hint-result" v-text="match_result"></div>
+                    <div class="icd-hint-text">请检查输入数据格式是否正确</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</template>

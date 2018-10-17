@@ -1,0 +1,42 @@
+<template id="main">
+    <div id="box">
+        <div style="margin: 0 10%; padding-top: 20px">
+            <table style="width: 100%">
+                <tr>
+                    <td style="width: 65%"><input id="f_upload" type="file" name="myfile"/></td>
+                    <td style="padding-left: 50px;vertical-align: top">
+                    <textarea rows="12" style="height: 100%;" id="txt" class="form-control" ref="txt"
+                              :placeholder="placeholder">
+            </textarea>
+                        <input type="button" id="btnSubmit"
+                               class="btn btn-success" style="float: right;margin-top:20px"
+                               @click="getMessage()" value="确定">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {#        <div style="margin: 0 10%;">#}
+        {#            <div style="padding: 20px; width: 60%; float:left;">#}
+        {#                <input id="f_upload" type="file" class="" name="myfile"/>#}
+        {#            </div>#}
+        {#            <div style="border-left: 5px solid #ccc; background-color: #d0e9c6">#}
+        {#                <div style="padding-top: 20px; background-color: #bce8f1">#}
+        {#                <textarea rows="10" style="height: 100%;width: 30%" id="txt" class="form-control" ref="txt"#}
+        {#                          :placeholder="placeholder">#}
+        {#            </textarea>#}
+        {#                    <input type="button" style="margin-top: 10px" id="btnSubmit"#}
+        {#                           class="btn btn-success" style="float: right"#}
+        {#                           @click="getMessage()" value="确定">#}
+        {#                </div>#}
+        {#            </div>#}
+        {#        </div>#}
+    </div>
+</template>
+
+<script>
+    $(document).ready(function () {
+        $("#floatLayer").hide()
+        $("#liadloging").hide()
+    })
+
+</script>

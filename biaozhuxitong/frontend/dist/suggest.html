@@ -1,0 +1,110 @@
+<template id="suggest">
+    <div>
+        <div id="group" style="padding-left: 5%; padding-right: 5%; width: 80%;float:left">
+            <table style="width: 99%">
+                <tr>
+                    <td width="30%" style="padding-right: 30px">
+                        <div class="sub-title">原文</div>
+                    </td>
+                    <td width="20%">
+
+                    </td>
+                    <td width="50%">
+                        <div class="sub-title">成分标注</div>
+                    </td>
+                </tr>
+                <tbody v-for="item,index in cur_items">
+                <tr>
+                    <td>
+                        <div id="msg" class="cut-frame msg" v-text="item.msg">
+
+                        </div>
+                    </td>
+                    <td>
+                        <a data-toggle="collapse" :href="'#'+index+100">成分推理路径</a>
+                        <a :id="index" style="color: #eea236" @click="reset($event)">重置</a>
+
+                    </td>
+                    <td>
+                        <div id="words" class="cut-frame">
+                            <div v-for="k,_ in item.sug" :id="index">
+                                <div name='cut-div' @click="selectSug($event)" class="cut sug-text sug-border"
+                                     :style="{backgroundColor:k[1].color}">
+                                    <span :style="{color:k[1].text_color}" v-text="k[0]"></span>
+                                    <span v-if="k[1].selected!=''"
+                                          style="color:#578;font-size: 13px;font-style: italic;padding-left: 5px"
+                                          v-text="k[1].selected">
+                                </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding: 10px 0">
+                        <div :id="index+100" class="collapse">
+                            <div v-for="(source,_) in cur_source[index]">
+{#                                <div v-text="source"></div>#}
+{#                                <div v-for="(seg_sug,_) in source">#}
+                                    <div style="padding:10px 20px;font-size: 18px;">
+                                        <span class="term-source">
+                                            <span v-text="source[0]">
+                                            </span>
+                                        </span>
+                                        <span v-for="(term_info,_) in source[1]" class="term-source-key">
+                                        <span v-for="term in term_info">
+                                                <span v-if="is_contain(source[0],term)" v-text="term">
+                                                </span>
+                                                <span v-else class="term-source-highlight" v-text="term">
+                                                </span>
+                                        </span>
+                                        </span>
+                                    </div>
+{#                                </div>#}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div name="button" class="button">
+                <button class="btn btn-default" style="font-size: 20px;">
+                    <a name="success" id="success" @click="saveSuggestion()">保存</a>
+                </button>
+                <button class="btn btn-default" style="font-size: 20px;">
+                    <a @click="submitSuggestion()">提交</a>
+                </button>
+            </div>
+            <div id="page_box">
+                <pg :page_arr="page_arr" :total="total" :total_page="total_page"
+                    v-on:prev_page="prevPage" v-on:next_page="nextPage" v-on:change_page="changePage"></pg>
+            </div>
+        </div>
+        <!--当前选择的分词-->
+        <div ref="cur" style="display: none" v-text="cur"></div>
+        <div id="coloring" style="float: left;position:relative;">
+            <div>
+                <div class="sub-title">成分着色</div>
+            </div>
+            <ul id="color-ul" style="padding: 0;margin: 0" class="list-unstyled">
+                <li>
+                    <div v-for="(k,v) in allsuggests" class="selected-item" @click="selectItem($event)">
+                        <code class="color-list" :style="{backgroundColor:k}"></code>
+                        <span style='font-size: 20px' v-text="v"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+<script>
+    $(window).scroll(function () {
+
+        var offsetTop = $(window).scrollTop() - 150;
+        if (offsetTop < 0) {
+            offsetTop = 0
+        }
+        $("#coloring").animate({top: offsetTop + "px"}, {duration: 1, queue: false});
+    });
+
+</script>

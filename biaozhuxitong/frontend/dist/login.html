@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>标注系统-登录</title>
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/header.css" rel="stylesheet">
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="title-div">
+    <div class="title"><h2><a href="/">标注系统</a></h2></div>
+</div>
+<div style="margin: 20px auto; width: 400px">
+    <form method="post" enctype="multipart/form-data" action="">
+        <input type="text" class="form-control" name="username" placeholder="请输入用户名"><br>
+        <input type="password" class="form-control" name="password" placeholder="请输入密码"><br>
+        <div id="hint" style="color:red;font-size: 13px;padding-bottom: 10px"></div>
+        <input type="button" class="btn btn-success col-lg-12" onclick="loginCheck()" value="登录">
+    </form>
+</div>
+<script>
+    function loginCheck() {
+        info = ""
+        info += $("input[name = 'username']").val() + ";";
+        info += $("input[name = 'password']").val();
+        $.post("/login_check/", {msg: info}, function (data) {
+            if (data) {
+                localStorage.setItem("username",data)
+                window.location.href = "/"
+            } else {
+                $("#hint").html("用户名和密码不匹配")
+                $("input[name = 'username']").focus()
+            }
+        })
+    }
+    //点击回车继续
+    $("body").keydown(function () {
+        if (event.keyCode == "13") {//keyCode=13是回车键
+            loginCheck()
+        }
+    });
+</script>
+</body>
+</html>

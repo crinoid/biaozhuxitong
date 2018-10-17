@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--让bootstrap兼容IE-->
+    <meta http-equiv="X-UA-Compatible" content="Chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1"/>
+    <title>标注系统</title>
+
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/header.css" rel="stylesheet">
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/js/vue.js" type="text/javascript"></script>
+    <script src="/static/js/vue-router.js"></script>
+
+    <style>
+        .div3 {
+            color: antiquewhite;
+        }
+
+        .frame {
+            background-color: #2e6da4;
+        }
+    </style>
+</head>
+<body>
+
+<div id="box">
+    <div id="div2" v-text="name"></div>
+    <div id="div1">111</div>
+    <div v-text="plus"></div>
+    <!--绑定多个class-->
+    <div v-bind:class="[classObject,frame]">000</div>
+    <div v-bind:style="styleObject">111</div>
+    <button @click="setName()">click</button>
+    <input v-on:keyup.enter="submit">
+    <input v-model.trim="msg">
+
+    <div>
+  <input type="radio" id="one" value="One" v-model="picked">
+  <label for="one1">One</label>
+  <br>
+  <input type="radio" id="two" value="Two" v-model="picked">
+  <label for="two">Two</label>
+  <br>
+  <span v-text="picked"></span>
+    </div>
+</div>
+
+
+<script>
+    var Main = new Vue({
+        el: "#box",
+
+        data: {
+            name: "a",
+            num: 10,
+            classObject: 'div3',
+            frame: 'frame',
+            styleObject: {
+                color: 'red',
+                fontSize: '13px'
+            },
+            picked: '',
+            msg:" aabbcc "
+        },
+        beforeCreate: function () {
+            console.log("beforecreate")
+            console.log(this.name)
+        }
+        ,
+        created: function () {
+            console.log("create")
+            console.log(this.name)
+            console.log($("#div1").text()) //vue创建了，就可以获取普通dom元素
+            console.log($("#div2").text()) //此时不能获取依赖vue的dom元素内容（可以获取该元素）
+        }
+        ,
+        beforeMount: function () {
+            console.log("beforemount")
+        }
+        ,
+        mounted: function () {//el 被新创建的 vm.$el 替换(如显示数据)，并挂载到实例上去之后调用该钩子。
+            console.log("mount")
+            this.test()
+            console.log(this.name)
+            console.log($("#div2").text()) //可以获取依赖vue的dom元素内容
+        }
+        ,
+        watch: {
+            name: function () { //变量的值改动便执行
+                console.log("name changed")
+            }
+        }
+        ,
+        computed: { //计算属性，在before mount和mount之间执行
+            //不推荐在dom上对变量操作，如运算，字符截取等，可以用computed方法代替
+            //需要缓存，用computed，不需要缓存，用普通方法
+            plus: function (n) { //像变量一样调用方法名，此方法名不用在data定义
+                console.log("compute")
+                return this.num + n
+            }
+        }
+        ,
+
+        methods: {
+            test: function () {
+                this.name = "abc"
+            }
+            ,
+            setName: function () {
+                console.log("----")
+                this.name = "aaa"
+            },
+            submit:function(){
+                console.log("submit")
+            }
+        }
+    })
+</script>
+
+</body>
+</html>
+

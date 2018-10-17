@@ -1,0 +1,14 @@
+<template id="page">
+    <div id="page_box" style="padding: 20px 0;margin: 0 auto;width: 60%">
+        <ul class="pagination">
+            <li><a ref="prevBtn" @click="prevPage()" >&laquo;</a></li>
+            <li name="page" v-for="page in page_arr">
+                <a @click="changePage($event)" v-text="page"></a></li>
+            <li><a ref="nextBtn" @click="nextPage()">&raquo;</a></li>
+        </ul>
+
+        <div style="color: #2e6da4;font-size: 14px;margin:0 auto;width: 100%" v-cloak>
+            共<span v-text="total"></span>条,<span v-text="total_page"></span>页
+        </div>
+    </div>
+</template>

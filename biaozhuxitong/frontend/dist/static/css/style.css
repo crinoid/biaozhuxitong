@@ -1,0 +1,40 @@
+
+.term-origin{
+  padding-right: 30px;
+}
+
+.term-source{
+  border: 1px solid #ccc;height: 30px;padding:0 4px; color: #7e7e7e;
+}
+.term-source-key{
+  height: 34px;background-color: #f9f9f9;font-size: 15px;padding: 2px 10px;color: lightslategrey;
+}
+
+.term-source-highlight{
+  color: #eea236;
+}
+
+/*icd*/
+.icd-source-outer{
+  padding: 50px 0 10px 0;height: 40px;
+}
+.icd-source-inner{
+  float: right;padding-right: 100px;
+}
+.icd-source-item{
+  float: right;padding-right: 10px;
+}
+.icd-result-table{
+  width: 80%;margin: 0 auto;
+}
+
+.icd-hint{
+  padding-top: 10px; text-align:center;width: 90%;
+}
+
+.icd-hint-result{
+  font-size: 20px;color: red;
+}
+.icd-hint-text{
+  font-size: 16px;color: grey;
+}

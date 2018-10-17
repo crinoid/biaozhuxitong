@@ -1,0 +1,88 @@
+<template id="segment">
+    <div id="group">
+        <div class="sub-frame">
+            <table>
+                <tr>
+                    <td width="30%" class="term-origin">
+                        <div class="sub-title">原文</div>
+                    </td>
+                    <td width="60%">
+                        <div class="sub-title">分词</div>
+                    </td>
+                    <td width="10%">
+
+                    </td>
+                </tr>
+                <tbody v-for="(item,index) in cur_items">
+                <tr>
+                    <td>
+                        <div id="msg" class="cut-frame msg" v-text="item.msg">
+                        </div>
+                    </td>
+                    <td>
+                        <div id="words" class="cut-frame">
+                            <div v-for="(seg,div_index) in item.seg" :id="index">
+                                <div name='cuts-div' class="cut seg-text seg-border" :id="div_index">
+                                <span v-for="(c,span_index) in seg" :id="span_index" name='cuts'
+                                      @click="cutMerge($event)"
+                                      class="char" v-text="c">
+                                </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a data-toggle="collapse" :href="'#'+index+100">分词推理路径</a>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" style="font-size: 20px; color: #f7ecb5">
+                            <a :id="index" @click="resign($event)">重置</a>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding: 10px 0">
+                        <div :id="index+100" class="collapse">
+                            <div v-for="(term,_) in cur_source[index]">
+                                <div style="padding:10px 20px;font-size: 18px;">
+                                    <!--分词-->
+                                    <span class="term-source">
+                                        <span v-text="term[0]">
+                                        </span>
+                                    </span>
+                                    <!--来源-->
+                                    <span v-for="k in term[1]" class="term-source-key">
+                                        <span v-for="k1 in k">
+                                            <span v-if="k1==term[0]" class="term-source-highlight" v-text="k1">
+                                            </span>
+                                            <span v-else v-text="k1">
+                                            </span>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div name="button" class="button" style="padding-top: 20px">
+
+                <button class="btn btn-default" style="font-size: 20px; color: #f7ecb5">
+                    <a name="success" id="success" @click="saveCuts()">保存</a>
+                </button>
+                <button class="btn btn-default" style="font-size: 20px; color: #f7ecb5">
+
+                    <a @click="getCuts()">提交</a>
+                </button>
+            </div>
+            <div id="page_box">
+                <pg :page_arr="page_arr" :total="total" :total_page="total_page"
+                    v-on:prev_page="prevPage" v-on:next_page="nextPage" v-on:change_page="changePage"></pg>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+

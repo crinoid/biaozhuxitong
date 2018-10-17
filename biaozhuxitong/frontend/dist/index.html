@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--让bootstrap兼容IE-->
+    <meta http-equiv="X-UA-Compatible" content="Chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1"/>
+    <title>标注系统</title>
+
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/theme.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.css" rel="stylesheet">
+    <link href="/static/css/fileinput.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/css/header.css" rel="stylesheet">
+    <link href="/static/css/segbox.css" rel="stylesheet">
+    <link href="/static/css/mask.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/toastr.css" rel="stylesheet" type="text/css"/>
+
+    <script src="/static/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="/static/js/vue.js" type="text/javascript"></script>
+    <script src="/static/js/vue-router.js"></script>
+    <script src="/static/js/fileinput.js" type="text/javascript"></script>
+    <script src="/static/js/explorer-theme.js" type="text/javascript"></script>
+    <script src="/static/js/theme.js" type="text/javascript"></script>
+    <script src="/static/js/zh.js" type="text/javascript"></script>
+    <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+
+</head>
+<body>
+<div id="app">
+    <div class='title-div'>
+        <div class='title'>
+            <h2>
+                <a @click="set_router('/','','/')">标注系统</a>
+            </h2>
+        </div>
+        <div class='user-info'>
+            <div style='height: 24px;'>
+                <div style='float: right'><span class="glyphicon glyphicon-user"></span>
+                    <span v-text="username" style="padding-left: 2px"></span>
+                    <a id='logout' href='/logout/'>登出</a>
+                    {#                    <span class="glyphicon glyphicon-question-sign" id='help'>#}
+                    <a href="/help/" target="_blank" style="color:#c6f1fc">帮助</a>
+                    {#                    </span>#}
+                </div>
+            </div>
+            <ul id='top' style='cursor: pointer'>
+                <li v-bind:class='{active: is_active_zd}' @click="set_router('','zhenduan','')">
+                    <a v-bind:style='{color:color_zd}'>疾病诊断</a></li>
+                <li v-bind:class='{ active: is_active_ss}' @click="set_router('','shoushu','')">
+                    <a v-bind:style='{color:color_ss}'>手术操作</a></li>
+                <li><a href='#'>症状体征</a></li>
+                <li><a href='#'>检验检查</a></li>
+                <li><a href='#'>用药</a></li>
+            </ul>
+        </div>
+    </div>
+    <div style='background-color: #eee;width: 100%;padding:10px 0 10px 20px;margin-bottom:20px;color: white;'>
+        <button id='all_files' class="btn" :class="cur_tab=='all_files/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('all_files/','','all_files/')"> 查看上传文件
+        </button>
+        <button id='new_data' class="btn" :class="cur_tab=='new_data/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('new_data/','','new_data/')"> 查看新增数据
+        </button>
+        <button id='origin_data' class='btn' :class="cur_tab=='origin_data/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('origin_data/','','origin_data/')"> 查看原始数据
+        </button>
+        <button id='log_management' class='btn' :class="cur_tab=='log_management/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('log_management/','','log_management/')"> 查看日志
+        </button>
+        <button id='suggest_edit' class='btn' :class="cur_tab=='suggest_edit/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('suggest_edit/','','suggest_edit/')"> 编辑标注
+        </button>
+        <button id='match_icd' class='btn' :class="cur_tab=='match_icd/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('match_icd/','','match_icd/')"> 编目匹配
+        </button>
+        <button id='match_icd_with_code' class='btn'
+                :class="cur_tab=='match_icd_with_code/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('match_icd_with_code/','','match_icd_with_code/')"> 编码匹配
+        </button>
+        <button id='search_icds' class='btn' :class="cur_tab=='search_icds/' ? 'btn-info' : 'btn-default'"
+                @click="set_router('search_icds/','','search_icds/')"> 匹配管理
+        </button>
+    </div>
+    <!--用于渲染匹配的组件-->
+    <router-view></router-view>
+
+    <div id="liadloging" class="liadloging">
+        <div class="ldl_Conten">
+            <img src="/static/img/loading.gif" width="128" height="128"/>
+
+        </div>
+    </div>
+    <!--灰色遮罩层 begin-->
+    <div id="floatLayer" class="floatLayer"></div>
+    <!--灰色遮罩层 end-->
+</div>
+
+{% include 'main.html' %}
+{% include 'all_files.html' %}
+{% include 'datafile.html' %}
+{% include 'origin_data.html' %}
+{% include 'log_management.html' %}
+{% include 'suggest_edit.html' %}
+{% include 'segment.html' %}
+{% include 'suggest.html' %}
+{% include 'icd.html' %}
+{% include 'match_icd_with_code.html' %}
+{% include 'search_icd.html' %}
+
+{% include 'page.html' %}
+
+<script>
+    document.write("<script type='text/javascript' src='/static/js/page.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/utils.js?'" + Math.random() + "'></scri" + "pt>");
+
+    document.write("<script type='text/javascript' src='/static/js/router/main.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/all_files.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/datafile.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/origin_data.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/suggest_edit.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/log_management.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/segment.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/suggest.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/icd.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/match_icd_with_code.js?'" + Math.random() + "'></scri" + "pt>");
+    document.write("<script type='text/javascript' src='/static/js/router/search_icd.js?'" + Math.random() + "'></scri" + "pt>");
+
+    document.write("<script type='text/javascript' src='/static/js/router/help.js?'" + Math.random() + "'></scri" + "pt>");
+</script>
+
+{#<script src="/static/js/router/main.js"></script>#}
+{#<script src="/static/js/router/all_files.js"></script>#}
+{#<script src="/static/js/router/datafile.js"></script>#}
+{#<script src="/static/js/router/origin_data.js"></script>#}
+{#<script src="/static/js/router/suggest_edit.js"></script>#}
+{#<script src="/static/js/router/log_management.js"></script>#}
+{#<script src="/static/js/router/segment.js"></script>#}
+{#<script src="/static/js/router/suggest.js"></script>#}
+{#<script src="/static/js/router/icd.js"></script>#}
+
+
+<script>
+    // 定义路由
+    // 每个路由应该映射一个组件。 其中"component" 可以是通过 Vue.extend() 创建的组件构造器，
+    const sub_routes = [
+        {path: '/', component: Main, props: true},
+        {path: '/:id', component: Main, props: true},
+        {path: '/all_files/:id', component: AllFiles, props: true},
+        {path: '/new_data/:id', component: Datafile, props: true},
+        {path: '/origin_data/:id', component: Origindata, props: true},
+        {path: '/log_management/:id', component: LogManagement, props: true},
+        {path: '/suggest_edit/:id', component: SuggestEdit, props: true},
+        {path: '/segment/:id', component: Segment, props: true},
+        {path: '/suggest/:id', component: Suggest, props: true},
+        {path: '/match_icd/:id', component: MatchICD, props: true},
+        {path: '/match_icd_with_code/:id', component: MatchICDCode, props: true},
+        {path: '/search_icds/:id', component: SearchICD, props: true},
+    ]
+
+
+    // 创建 router 实例，然后传 `routes` 配置
+    const router = new VueRouter({
+        routes: sub_routes,
+        {#        mode: 'history', //用于锚点#}
+        {#        scrollBehavior (to, from, savedPosition) {#}
+        {#            if (to.hash) {#}
+        {#                return {#}
+        {#                    selector: to.hash#}
+        {#                }#}
+        {#            }#}
+        {#        }#}
+    })
+
+    // 创建和挂载根实例。
+    // 记得要通过 router 配置参数注入路由，
+    // 从而让整个应用都有路由功能
+    const app = new Vue({
+        data: {
+            username: "",
+            color_zd: "#555",
+            color_ss: "#fff",
+            is_active_zd: true,
+            is_active_ss: false,
+
+            cur_tab: "",
+
+            first_path: "",
+            second_path: "zhenduan",
+
+        },
+        router: router,
+        created: function () {
+            var _self = this
+            $.ajax({
+                type: "post",
+                url: "/get_session/",
+                success: function (data) {
+                    _self.username = data["username"]
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(textStatus);
+                }
+            })
+            cur_url = window.location.href
+            urls = cur_url.split("/")
+            url_len = urls.length
+            {#            if (urls.length == 6) {#}
+            this.first_path = urls[url_len - 2] + "/"
+            this.second_path = urls[url_len - 1]
+            if (this.second_path == "") {
+                this.second_path = (this.is_active_zd == true ? "zhenduan" : "shoushu")
+            }
+            this.get_second_path(this.second_path)
+            this.cur_tab = this.first_path
+            this.set_router(this.first_path, this.second_path, "")
+            {#            }#}
+
+        },
+        methods: {
+            get_router(path){
+                if (path == "/")
+                    path = ""
+                this.first_path = path
+            },
+            get_second_path(path){
+                this.second_path = path
+                if (path == "zhenduan") {
+                    this.color_zd = "#555"
+                    this.color_ss = "#fff"
+                    this.is_active_zd = true
+                    this.is_active_ss = false
+                }
+                else if (path == "shoushu") {
+                    this.color_ss = "#555"
+                    this.color_zd = "#fff"
+                    this.is_active_ss = true
+                    this.is_active_zd = false
+                }
+            },
+            set_router(path1, path2, tab){
+                if (path1 != "")
+                    this.get_router(path1)
+                if (path2 != "")
+                    this.get_second_path(path2)
+                if (tab != "")
+                    this.cur_tab = tab
+                router.push({path: "/" + this.first_path + this.second_path})
+                {#                router.params={"name":this.second_path}#}
+                this.$route.params = {"name": this.second_path}
+
+            },
+            login(){
+                window.location.href = "/login/"
+            }
+        }
+    }).$mount('#app')
+
+</script>
+
+<script src="/static/js/toastr.js" type="text/javascript"></script>
+<script src="/static/js/toastpopup.js" type="text/javascript"></script>
+</body>
+</html>

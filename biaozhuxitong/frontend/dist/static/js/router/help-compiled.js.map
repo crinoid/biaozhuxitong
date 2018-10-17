@@ -1,0 +1,1 @@
+{"version":3,"sources":["help.js"],"names":[],"mappings":"AAAA,IAAI,SAAS,IAAI,MAAJ,CAAW;AACtB,YAAU;;AADY,CAAX,CAAb","file":"help-compiled.js","sourcesContent":["var Helper = Vue.extend({\n  template: '#helpers',\n\n\n  })\n"]}

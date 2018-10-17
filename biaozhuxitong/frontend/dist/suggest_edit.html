@@ -1,0 +1,53 @@
+<template id="suggestedit">
+    <div id="box">
+        <div class="sub-frame">
+            <div style="float: right;width: 180px">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="ctg" v-on:keyup.enter="add_category">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success" type="button" @click="add_category()">
+                            <span class="glyphicon glyphicon-plus"></span>添加</button>
+                                </span>
+                </div>
+            </div>
+            <table id="table1" class="table table-striped table-hover"
+                   style="margin: 0 auto;width: 90%;margin-bottom:50px">
+                <thead style="font-weight: bold">
+                <tr>
+                    <td width="45%">标注名称</td>
+                    <td>分词数</td>
+                    <td>删除</td>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                <tr v-for="(s,i) in suggests">
+                    <td>
+                        <input :id="s" type="text" width="100px" class="input-display" disabled="true" :value="s" @blur="update_category(s,i)">
+                  <a style="color: #006699" @click="edit_category(s)">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+                    </td>
+                    <td v-text="counts[s]"></td>
+                    <td>
+                        <a style="color: #999999" @click="delete_category(s)">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>
+<script>
+    function add_item() {
+        $("#tbody").append("<tr><td></td><td><input type='text'></td></tr>")
+    }
+
+</script>
+<style>
+    .input-display {
+        border: 0;
+        background-color: transparent;
+    }
+</style>
