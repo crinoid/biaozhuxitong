@@ -22,15 +22,13 @@ def service():
         abort(400)
     try:
         json = request.get_json()
-        print json["diag"]
         if "seg_para" in json.keys():
-            print "0000"
-            result_seg = seg_sentences(json["diag"],json["seg_para"])
+            result_seg = seg_sentences_array(json["diag"],json["seg_para"])
         else:
-            result_seg = seg_sentences(json["diag"])
-        print result_seg
+            result_seg = seg_sentences_array(json["diag"])
         result_sug = sugss(result_seg)
-        print jsonify(result_sug)
+        # res = {"diag":result_sug}
+        # print "res",res
     except:
         abort(400)
 
@@ -125,17 +123,19 @@ def get_sugs():
     result = get_sug_dic()
     return jsonify(result)
 
+#
+if __name__ == '__main__':
+    app.run(
+            # host='0.0.0.0',
+            port=8006
+    )
 
-# if __name__ == '__main__':
-#     app.run(
-#             # host='0.0.0.0',
-#             port=8006
-#     )
-
-
-# print sugss(seg_sentences([u"反复低血糖"]))
+# a = seg_sentences_array([u"反复低血糖",u"高血压2级"])
+# print sugss(a)
 # import requests
 # import json
-# terms_dict = requests.post("http://127.0.0.1:8006/service", data=json.dumps({"diag": ["肋骨骨折"], "seg_para": False}),
+# terms_dict = requests.post("http://127.0.0.1:8006/service", data=json.dumps({"diag": [u"低血糖"]}),
 #                            headers={'content-type': 'application/json'}).content.decode('utf8')
+
+# terms_dict =requests.post("http://127.0.0.1:8006/service", data=json.dumps({"diag": [u"低血糖"], "seg_para": False}),headers={'content-type': 'application/json'}).content.decode('utf8')
 # print terms_dict

@@ -30,6 +30,12 @@ class JiebaTuning(object):
         for d in data:
             jieba.add_word(d["seg"],freq=freq)
 
+    @staticmethod
+    def delete_usr_dict(path):
+        with open(path, 'r') as f:
+            for l in f.xreadlines():
+                jieba.del_word(l.strip())
+
 
     @staticmethod
     def suggest_usr_dict(path, sep=','):

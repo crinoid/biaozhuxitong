@@ -513,11 +513,11 @@ def icd_service(data, source_list, size=MATCH_COUNT, is_enable_ft=False, ):
     '''
 
     res = m_icd.matched_dis(data, source_list, size)
-    for k in res:
-        print k[0]
-        for icd in k[1]:
-            print icd[0], icd[1], icd[2], icd[3]
-        print "-----"
+    # for k in res:
+    #    print k[0]
+    #   for icd in k[1]:
+    #       print icd[0], icd[1], icd[2], icd[3]
+    #    print "-----"
 
     return res
 
@@ -539,7 +539,7 @@ def icd_code_service(data, source_list, size=MATCH_COUNT):
     return res
 
 
-# icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
+#icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
 # icd_code_service(["R23.1","R24"], ["BJ","GB","LC"])
 
 '''

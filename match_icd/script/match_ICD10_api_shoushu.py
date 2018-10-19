@@ -51,7 +51,7 @@ class MatchingICD(object):
         self.digits_dic = match_ICD10_api.build_digits()
         # self.syn_dict = self.build_syn_dic()
 
-        patch("data1.csv")
+        patch("../data/shoushu_patch.csv")
 
     def load_cache_files(self, source_list):
         '''
@@ -345,5 +345,5 @@ def icd_code_service(data,source_list,size=MATCH_COUNT):
     #     print "-----"
     return res
 
-icd_service(["肋骨取骨术"], ["BJ"])
+# icd_service(["肋骨取骨术"], ["BJ"])
 # icd_code_service(["00.02"], ["BJ","LC"])

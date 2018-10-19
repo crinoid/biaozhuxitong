@@ -29,4 +29,4 @@ data2 = copy.deepcopy(data)
 
 path = 'seg_service/'
 
-segment = SegSingleSentence(data2, '',"",'data/stop_words_zhenduan.csv')
+segment = SegSingleSentence(data2, "data/terms_for_remove.txt","",'data/stop_words_zhenduan.csv')

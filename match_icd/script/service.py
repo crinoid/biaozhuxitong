@@ -21,6 +21,7 @@ def service1():
         abort(400)
     try:
         data = request.get_json()
+        # print data["diag"]
 
         if data["dbname"] == "zhenduan":
             if "size" in data.keys():
@@ -38,7 +39,7 @@ def service1():
     except:
         abort(400)
 
-    return jsonify(result)
+    return jsonify({"res":result})
 
 
 @app.route('/match_icd_with_code', methods=['POST'])

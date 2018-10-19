@@ -131,74 +131,36 @@ class MatchingICD(object):
 
         return self.match_region_core(dis_sentence,res,rest_dis)
 
-    def match_region_core(self,dis_sentence,res,rest_dis=""):
-        diag=dis_sentence
+    def match_region_core(self,dis_sentence,source_list,res,rest_dis=""):
+        diag = deepcopy(dis_sentence)
         if rest_dis:
-            diag=rest_dis.keys()
+            diag = rest_dis.keys()
         # 诊断标注，提取key=原文，部位，中心词
-        terms_dict={}
-        terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": diag, "seg_para": False}),
+        terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": diag}),
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
 
-        # 粗粒度分词
-        terms_dict_lg = requests.post(utils.SERVICE_URL_ZD2, data=json.dumps({"diag": diag, "seg_para": True}),
-                                   headers=utils.HEADERS).content.decode('utf8')
-        terms_dict_lg = eval(terms_dict_lg)
-
-        print "segged"
-
-        #未知猜词
-        # for term_dict in terms_dict_lg["diag"]:
-        #     if "未知" in term_dict:
-        #         for t in term_dict["未知"]:
-        #             new_type = utils.auto_match(t,size=5)
-        #             term_dict["未知"].remove(t)
-        #             try:
-        #                 term_dict[new_type].append(t)
-        #             except:
-        #                 term_dict[new_type]=[t]
-
         # 按部位匹配
-        # res = self.get_icds(terms_dict,terms_dict_lg)
+        res_epoch3 = self.get_same_position(terms_dict, source_list)
+        res = match_ICD10_api.update_res(res, res_epoch3)
 
-        # 没有找到结果的，用es匹配
-        # 用ft判断是否相近
-        if not res:
+        matched = self.get_matched_dis(res)
 
-            for dis in dis_sentence:
-                r = match_ICD10_api.es_search(dis,map(self.source_reflection,self.source),self.MATCH_COUNT)
-                # 这里用ft计算一下
-                res[dis]=map(self.rewrite_search,r,[dis]*len(r))
+        # 按中心词匹配
+        res_epoch4 = self.get_same_core(terms_dict, source_list, matched)
+        res = match_ICD10_api.update_res(res, res_epoch4)
 
-                remove_terms=[]
-                for k in res[dis]: #icd内容
-                    terms_dict1 = requests.post(utils.SERVICE_URL_ZD,
-                                               data=json.dumps({"diag": [k[0]], "seg_para": False}),
-                                               headers=utils.HEADERS).content.decode('utf8')
-                    terms_dict1 = eval(terms_dict1)
-                    for i,t in enumerate(terms_dict1["diag"]):
-                        if "部位" in t:
-                            regions = t["部位"]
-                            is_match = 1
-                            # 如果icd所有的部位与diag所有的部位都不相同（相似度较小），排除
-                            for r in regions:
-                                try: # terms_dict["diag"][i]可能没有部位
-                                    for diag in terms_dict["diag"][i]["部位"]:
-                                        # 互为近似词返回0，只有有一组近似词，is_match=0
-                                        is_match *= match_ICD10_api.is_similar(diag,r,dis,self.syn_dict)
-                                except:
-                                    pass
-                            # s_match=1，说明
-                            if is_match==1:
-                                remove_terms.append(k)
+        # 整体作为同义词
 
-                for r in remove_terms:
-                    res[dis].remove(r)
 
-                res[dis]=sorted(res[dis], key=lambda x: x[2],reverse=True)
+        # diag = match_ICD10_api.build_res_dict(res, diag)
 
-        return res
+        rr = []
+        for dis in dis_sentence:
+            rr.append([dis, res[dis]])
+
+        return rr
+
 
     def source_reflection(self,source):
         return "zd-icd-"+source.lower()
@@ -629,9 +591,9 @@ def icd_service(data, source_list,size=MATCH_COUNT,is_enable_ft=False):
     '''
 
     res = m_icd.matched_dis(data,source_list,size,is_enable_ft)
-    for k, v in res.iteritems():
-        print k
-        for icd in v:
+    for k in res:
+        print k[0]
+        for icd in k[1]:
             print icd[0], icd[1],icd[2], icd[3]
         print "-----"
 
@@ -656,11 +618,11 @@ def icd_code_service(data,source_list,size=MATCH_COUNT):
 # print "start"
 # import time
 # t1=time.time()
-# icd_service(["发作性眩晕症"], ["GB","BJ"],size=10)
+# icd_service(["背部麻木"], ["GB","BJ"],size=5)
 # t2=time.time()
 # print t2-t1
 # icd_code_service(["R23.1","R24"], ["BJ","GB","LC"])
 
 
-# print fuzz.ratio("肝多发囊肿", "肝囊肿")
+# print fuzz.ratio("PH偏低", "低位刚啊")
 # print fuzz.ratio("肝多发囊肿", "多发性肝囊肿")

@@ -1,0 +1,334 @@
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Oct 19 09:23:03 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/match_icd/script
+detected binary path: /root/anaconda2/bin/uwsgi
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address :9003 fd 3
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0xca5430
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 72920 bytes (71 KB) for 1 cores
+*** Operational MODE: single process ***
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Model file cannot be opened for loading!
+Traceback (most recent call last):
+  File "./service.py", line 6, in <module>
+    from match_ICD10_api_zhenduan import icd_service as zd_icd_service
+  File "./match_ICD10_api_zhenduan.py", line 11, in <module>
+    import utils
+  File "./utils.py", line 26, in <module>
+    ft_model.load_model('../data/bcjl_model1.bin')
+  File "src/pyfasttext.pyx", line 661, in pyfasttext.FastText.load_model
+RuntimeError: fastext tried to exit: 1
+unable to load app 0 (mountpoint='') (callable not found or import error)
+Model file cannot be opened for loading!
+Traceback (most recent call last):
+  File "service.py", line 6, in <module>
+    from match_ICD10_api_zhenduan import icd_service as zd_icd_service
+  File "./match_ICD10_api_zhenduan.py", line 11, in <module>
+    import utils
+  File "./utils.py", line 26, in <module>
+    ft_model.load_model('../data/bcjl_model1.bin')
+  File "src/pyfasttext.pyx", line 661, in pyfasttext.FastText.load_model
+RuntimeError: fastext tried to exit: 1
+unable to load app 0 (mountpoint='') (callable not found or import error)
+*** no app loaded. going in full dynamic mode ***
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI worker 1 (and the only) (pid: 20856, cores: 1)
+--- no python application found, check your startup logs for errors ---
+[pid: 20856|app: -1|req: -1/1] 127.0.0.1 () {40 vars in 544 bytes} [Fri Oct 19 09:51:41 2018] POST /match_icd => generated 21 bytes in 0 msecs (HTTP/1.1 500) 2 headers in 83 bytes (0 switches on core 0)
+--- no python application found, check your startup logs for errors ---
+[pid: 20856|app: -1|req: -1/2] 127.0.0.1 () {40 vars in 544 bytes} [Fri Oct 19 09:58:01 2018] POST /match_icd => generated 21 bytes in 0 msecs (HTTP/1.1 500) 2 headers in 83 bytes (0 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Oct 19 10:13:27 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/match_icd/script
+detected binary path: /root/anaconda2/bin/uwsgi
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address :9003 fd 3
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0xe51430
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 72920 bytes (71 KB) for 1 cores
+*** Operational MODE: single process ***
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Traceback (most recent call last):
+  File "./service.py", line 6, in <module>
+    from match_ICD10_api_zhenduan import icd_service as zd_icd_service
+  File "./match_ICD10_api_zhenduan.py", line 542, in <module>
+    icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
+  File "./match_ICD10_api_zhenduan.py", line 515, in icd_service
+    res = m_icd.matched_dis(data, source_list, size)
+  File "./match_ICD10_api_zhenduan.py", line 79, in matched_dis
+    return self.match_region_core(dis_list, source_list, res)
+  File "./match_ICD10_api_zhenduan.py", line 166, in match_region_core
+    terms_dict = eval(terms_dict)
+  File "<string>", line 1
+    Internal Server Error
+                  ^
+SyntaxError: invalid syntax
+unable to load app 0 (mountpoint='') (callable not found or import error)
+Traceback (most recent call last):
+  File "service.py", line 6, in <module>
+    from match_ICD10_api_zhenduan import icd_service as zd_icd_service
+  File "./match_ICD10_api_zhenduan.py", line 542, in <module>
+    icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
+  File "./match_ICD10_api_zhenduan.py", line 515, in icd_service
+    res = m_icd.matched_dis(data, source_list, size)
+  File "./match_ICD10_api_zhenduan.py", line 79, in matched_dis
+    return self.match_region_core(dis_list, source_list, res)
+  File "./match_ICD10_api_zhenduan.py", line 166, in match_region_core
+    terms_dict = eval(terms_dict)
+  File "<string>", line 1
+    Internal Server Error
+                  ^
+SyntaxError: invalid syntax
+unable to load app 0 (mountpoint='') (callable not found or import error)
+*** no app loaded. going in full dynamic mode ***
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI worker 1 (and the only) (pid: 26306, cores: 1)
+--- no python application found, check your startup logs for errors ---
+[pid: 26306|app: -1|req: -1/1] 127.0.0.1 () {40 vars in 544 bytes} [Fri Oct 19 10:51:01 2018] POST /match_icd => generated 21 bytes in 14 msecs (HTTP/1.1 500) 2 headers in 83 bytes (0 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Oct 19 11:23:57 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/match_icd/script
+detected binary path: /root/anaconda2/bin/uwsgi
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address :9003 fd 3
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0x1e3d430
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 72920 bytes (71 KB) for 1 cores
+*** Operational MODE: single process ***
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Traceback (most recent call last):
+  File "./service.py", line 6, in <module>
+    from match_ICD10_api_zhenduan import icd_service as zd_icd_service
+  File "./match_ICD10_api_zhenduan.py", line 542, in <module>
+    icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
+  File "./match_ICD10_api_zhenduan.py", line 515, in icd_service
+    res = m_icd.matched_dis(data, source_list, size)
+  File "./match_ICD10_api_zhenduan.py", line 79, in matched_dis
+    return self.match_region_core(dis_list, source_list, res)
+  File "./match_ICD10_api_zhenduan.py", line 166, in match_region_core
+    terms_dict = eval(terms_dict)
+  File "<string>", line 1
+    Internal Server Error
+                  ^
+SyntaxError: invalid syntax
+unable to load app 0 (mountpoint='') (callable not found or import error)
+Traceback (most recent call last):
+  File "service.py", line 6, in <module>
+    from match_ICD10_api_zhenduan import icd_service as zd_icd_service
+  File "./match_ICD10_api_zhenduan.py", line 542, in <module>
+    icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
+  File "./match_ICD10_api_zhenduan.py", line 515, in icd_service
+    res = m_icd.matched_dis(data, source_list, size)
+  File "./match_ICD10_api_zhenduan.py", line 79, in matched_dis
+    return self.match_region_core(dis_list, source_list, res)
+  File "./match_ICD10_api_zhenduan.py", line 166, in match_region_core
+    terms_dict = eval(terms_dict)
+  File "<string>", line 1
+    Internal Server Error
+                  ^
+SyntaxError: invalid syntax
+unable to load app 0 (mountpoint='') (callable not found or import error)
+*** no app loaded. going in full dynamic mode ***
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI worker 1 (and the only) (pid: 1061, cores: 1)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Oct 19 11:31:08 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/match_icd/script
+detected binary path: /root/anaconda2/bin/uwsgi
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address :9003 fd 3
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0xf06430
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 72920 bytes (71 KB) for 1 cores
+*** Operational MODE: single process ***
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+左侧胁肋部疼痛
+疼痛 R52.900 59 国家临床版
+急性疼痛 R52.000 36 国家临床版
+性交疼痛 N94.100 36 国家临床版
+-----
+WSGI app 0 (mountpoint='') ready in 12 seconds on interpreter 0xf06430 pid: 2874 (default app)
+mountpoint  already configured. skip.
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI worker 1 (and the only) (pid: 2874, cores: 1)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 1/1] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 14:01:42 2018] POST /match_icd => generated 177 bytes in 3406 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 2/2] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 14:07:45 2018] POST /match_icd => generated 177 bytes in 2833 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 3/3] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 14:13:17 2018] POST /match_icd => generated 177 bytes in 3189 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 4/4] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 14:30:47 2018] POST /match_icd => generated 177 bytes in 3318 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 5/5] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 14:37:25 2018] POST /match_icd => generated 177 bytes in 2598 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+肋骨骨折
+肋骨骨折 S22.300 105 国标版
+肋骨骨折 S22.321 105 北京临床版
+肋骨骨折 S22.300 105 国家临床版
+肋骨多处骨折 S22.400 80 国家临床版
+肋骨多处骨折 S22.400 80 国标版
+面骨骨折 S02.901 75 国家临床版
+面骨骨折 S02.901 75 北京临床版
+面骨骨折 S02.901 75 国标版
+陈旧性肋骨骨折 T91.201 73 北京临床版
+肋骨多发性骨折 S22.401 73 北京临床版
+-----
+[pid: 2874|app: 0|req: 6/6] 127.0.0.1 () {40 vars in 544 bytes} [Fri Oct 19 14:57:36 2018] POST /match_icd => generated 1223 bytes in 12760 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 7/7] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 15:04:30 2018] POST /match_icd => generated 177 bytes in 3341 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 8/8] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 15:06:13 2018] POST /match_icd => generated 177 bytes in 2607 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 9/9] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 15:07:20 2018] POST /match_icd => generated 177 bytes in 3096 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+高血压
+高血压 I10xx02 105 北京临床版
+-----
+[pid: 2874|app: 0|req: 10/10] 113.240.55.249 () {38 vars in 550 bytes} [Fri Oct 19 15:18:37 2018] POST /match_icd => generated 177 bytes in 3217 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Oct 19 15:37:53 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/match_icd/script
+detected binary path: /root/anaconda2/bin/uwsgi
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address :9003 fd 3
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0x144a430
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 72920 bytes (71 KB) for 1 cores
+*** Operational MODE: single process ***
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+WSGI app 0 (mountpoint='') ready in 8 seconds on interpreter 0x144a430 pid: 26918 (default app)
+mountpoint  already configured. skip.
+uWSGI running as root, you can use --uid/--gid/--chroot options
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI worker 1 (and the only) (pid: 26918, cores: 1)
+[pid: 26918|app: 0|req: 1/1] 127.0.0.1 () {40 vars in 544 bytes} [Fri Oct 19 15:43:32 2018] POST /match_icd => generated 1223 bytes in 12429 msecs (HTTP/1.1 200) 1 headers in 51 bytes (2 switches on core 0)

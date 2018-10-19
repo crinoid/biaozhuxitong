@@ -32,9 +32,4 @@ path = 'seg_service/'
 segment = SegSingleSentence(data2, "","",'data/stop_words_zhenduan.csv')
 
 
-for k,v in seg_sentences([u"addison病"])["diag"].iteritems():
-    print k
-    for v1 in v:
-        print v1
-
 # update_segment()
