@@ -1,0 +1,8 @@
+<uwsgi>
+<socket>:9000</socket>
+<callable>app</callable>
+<wsgi-file>service.py</wsgi-file>
+<module>service</module>
+<process>4</process>
+<daemonize>/home/biaozhuxitong/service_syn/uwsgi.log</daemonize>
+</uwsgi>
