@@ -26,6 +26,7 @@ TMP_PATH = "../data/icd/tmp/zhenduan/"
 
 syn_file_path = "../data/synonyms/merged_syn.csv"
 
+
 # es = elasticsearch2.Elasticsearch()
 
 
@@ -42,6 +43,9 @@ class MatchingICD(object):
 
         self.digits_dic = match_ICD10_api.build_digits()
         self.syn_dict = match_ICD10_api.build_syn_dic1(syn_file_path)
+
+        # 部位使用in带有歧义的组合
+        self.region_not_match = json.load(open("../data/region_not_match.json"))
 
     def load_cache_files(self, source_list):
         '''
@@ -174,8 +178,8 @@ class MatchingICD(object):
                 except:
                     pass
             syns_item.append(item[0])  # 添加编目本身，分词标注用
-            syns_item.extend(map(self.add_custom_syn_terms,set(syns_item)))
-            syns_item=list(set(syns_item))
+            syns_item.extend(map(self.add_custom_syn_terms, set(syns_item)))
+            syns_item = list(set(syns_item))
             catalog_syns[item[0]] = syns_item
             all_items.extend(syns_item)
 
@@ -186,20 +190,20 @@ class MatchingICD(object):
 
         # 把输入整理成如下格式,{输入编目：{同义词:[部位]}}，便于判断部位是否相同
         # syn:{左拇指甲沟炎：{左拇指甲沟炎：[部位1，部位2...],拇指甲沟炎：[部位1，部位2...]}}
-        for s in catalog_syns.keys(): #输入编目原文
+        for s in catalog_syns.keys():  # 输入编目原文
             new_s = {}
             for term in terms_dict:
                 for s1 in catalog_syns[s]:
-                    if s1==term["原文"]:
+                    if s1 == term["原文"]:
                         try:
-                            new_s[s]=term["部位"]
+                            new_s[s] = term["部位"]
                         except:
                             new_s[s] = []
 
-            catalog_syns[s]=new_s
+            catalog_syns[s] = new_s
 
         res = []  # 匹配结果,[编目，[匹配列表]]
-        for k, v in catalog_syns.iteritems(): #k:输入编目，包括部位替换后
+        for k, v in catalog_syns.iteritems():  # k:输入编目，包括部位替换后
             size = len(v.keys())
             # 获得某条编目包含的部位/中心词
             term_by_region = []
@@ -217,7 +221,6 @@ class MatchingICD(object):
             icds1 = self.get_same_region(term_by_region, source_list)
             # 按中心词匹配
             icds2 = self.get_same_core(term_by_core, source_list)
-
             # 合并按部位匹配和按中心词匹配的结果
             icds1.extend(icds2)
 
@@ -225,7 +228,7 @@ class MatchingICD(object):
             for m in icds1:
                 # 中心词icd文件带有部位，要保证部位与输入编目的部位相同，或不包含任何部位
                 # k:输入文本，m:icd缓存
-                if len(m) >= 4 and self.core_with_same_region(k,v, m[3],ft=False):
+                if len(m) >= 4 and self.core_with_same_region(k, v, m[3], ft=False):
                     if m not in icd_list:
                         icd_list.append(m)
                 elif len(m) == 3:
@@ -315,14 +318,25 @@ class MatchingICD(object):
     def get_matched_icds(self, terms, icd_file):
         '''
 
-        :param dis_sentence:
-        :param type:
+        :param terms:
         :param icd_file:
-        :param icd_file2:
         :return:
         '''
         icd_list = []
-        for term in terms:  # 要匹配的关键字
+
+        # region_not_match = json.load(open("region_not_match.json"))
+        #
+        # def region_ambiguous(region):
+        #     try:
+        #         for r in region_not_match[region]:
+        #             if r in icd_file:
+        #                 return False
+        #         return True
+        #     except:  # 该部位不在region_not_match的key中，通过
+        #         return True
+
+
+        for term in terms:  # 要匹配的关键字（最好不要用in，如input=阴唇，icd=唇）
             if term in icd_file:
                 icd_list.extend(icd_file[term])
 
@@ -345,9 +359,9 @@ class MatchingICD(object):
         :param items:
         :return:
         '''
-        for p in ["左侧", "右侧", "双侧", "左", "右", "前", "后", "双", "上", "下", "部", "内"]:
+        for p in ["左侧", "右侧", "双侧", "左", "右", "前", "后", "双", "上", "下", "部", "内", "区"]:
             item = item.replace(p, "")
-        for i in ["病", "症", "征","炎"]:
+        for i in ["病", "症", "征", "炎"]:
             item = item.replace(i, "")
         if "恶性肿瘤" in item:
             item = item.replace("恶性肿瘤", "癌")
@@ -356,7 +370,7 @@ class MatchingICD(object):
 
         return item
 
-    def core_with_same_region(self, catalog,regions, icd, ft=False):
+    def core_with_same_region(self, catalog, regions, icd, ft=False):
         '''
         判断icd的部位是否在输入的文本中出现
         :param catalog:输入编目
@@ -370,21 +384,34 @@ class MatchingICD(object):
         if not icd:
             return True
 
-        icd_copy=deepcopy(icd)
+
+
+        def region_ambiguous(region):
+            try:
+                for r in self.region_not_match[region]:
+                    if r in catalog:
+                        return False
+                return True
+            except:  # 该部位不在region_not_match的key中，通过
+                return True
+
+        icd_copy = deepcopy(icd)
         # special这些不是特指的部位，如胸部皮肤，腹部皮肤，不能以这些为判定标准
         # 如果icd只包含特指部位，可以
         # 否则要去掉这些，比较剩余部位是否相似
-        for special in ["皮肤","关节","组织","肌肉","肌","动脉","静脉","运动","精神"]:
+        for special in ["皮肤", "关节", "组织", "肌肉", "肌", "动脉", "静脉", "总动脉", "总静脉", "运动", "精神", "黏膜", "淋巴", "囊"]:
             if special in icd_copy:
                 icd_copy.remove(special)
         if icd_copy:
-            icd=icd_copy
+            icd = icd_copy
         for i in icd:
-            if i in catalog:
+            # icd的部位是否在输入编目中出现
+            if i in catalog and region_ambiguous(i):
                 return True
+            # 使用fasttext判断icd的部位是否跟输入编目的部位（分词后的）相似
             if ft:
                 for r in regions:
-                    if utils.compare_word_similarity(i,r)>0.5:
+                    if utils.compare_word_similarity(i, r) > 0.5:
                         return True
         return False
 
@@ -463,7 +490,8 @@ class MatchingICD(object):
                 types = ["0_core_term", "1_region_term", "2_type_term", "3_judge_term", "4_connect_term",
                          "5_others_term", "dummy_term"]
                 # 使用partio_ratio?先排序？
-                if len(icd) <= len(catalog) and match_ICD10_api.icd_part_in_dis(self.icd_list, catalog, icd, icds[2], types):
+                if len(icd) <= len(catalog) and match_ICD10_api.icd_part_in_dis(self.icd_list, catalog, icd, icds[2],
+                                                                                types):
                     # 类似2型糖尿病和糖尿病2型,字相同,顺序不同,一定是最匹配的(此时完全一样的已经去掉)
                     # 排序相同，避免icd_part_in_dis中未知词造成的干扰（此处不包括未知的匹配，只判断主要成分）
                     # 如药物性皮炎&染发性皮炎，染发性是未知，这样的一组词就进入了这里，实际不相似
@@ -514,10 +542,10 @@ def icd_service(data, source_list, size=MATCH_COUNT, is_enable_ft=False, ):
 
     res = m_icd.matched_dis(data, source_list, size)
     # for k in res:
-    #    print k[0]
-    #   for icd in k[1]:
-    #       print icd[0], icd[1], icd[2], icd[3]
-    #    print "-----"
+    #     print k[0]
+    #     for icd in k[1]:
+    #         print icd[0], icd[1], icd[2], icd[3]
+    #     print "-----"
 
     return res
 
@@ -539,7 +567,7 @@ def icd_code_service(data, source_list, size=MATCH_COUNT):
     return res
 
 
-#icd_service(["左侧胁肋部疼痛"], ["LC"], size=5)
+# icd_service(["小阴唇囊肿剥除术后"], ["LC"], size=5)
 # icd_code_service(["R23.1","R24"], ["BJ","GB","LC"])
 
 '''

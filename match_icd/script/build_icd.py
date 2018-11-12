@@ -85,30 +85,32 @@ def build_icd_type_norm(icd_path, out_path, type_name, source_name):
     f = open(out_path, "w")
     core_dict = {}
 
-    f_region = open("../data/region.csv").readlines()
-
-    data_set= utils.db.zd_suggest.find({"sug":type_name})
-    for d in data_set:
-        tmp=[]
-        for icd in icd_list:
-            if d["seg"] in icd:
-                terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": [icd]}),
-                                                headers=utils.HEADERS).content.decode('utf8'))
-                try:
-                    regions = terms_dict[0]["部位"]
-                except:
-                    regions=[]
-                try:
-                    features = terms_dict[0]["特征词"]
-                except:
-                    features = []
-                # 添加可能的部位
-                # for r in f_region:
-                #     if r.strip() in icd.encode('utf8'):
-                #         regions.append(r.strip())
-                tmp.append([icd.encode('utf8'),icd_dict[icd].encode('utf8'),source_name,list(set(regions)),list(set(features))])
-        if tmp:
-            core_dict[d["seg"].encode('utf8')]=tmp
+    # f_region = open("../data/region.csv").readlines()
+    for tp in type_name:
+        data_set = utils.db.zd_suggest.find({"sug":tp})
+        for d in data_set:
+            tmp=[]
+            for icd in icd_list:
+                if d["seg"] in icd:
+                    terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": [icd]}),
+                                                    headers=utils.HEADERS).content.decode('utf8'))
+                    if "部位" in terms_dict[0].keys():
+                        regions = terms_dict[0]["部位"]
+                    elif "成分" in terms_dict[0].keys():
+                        regions = terms_dict[0]["成分"]
+                    else:
+                        regions=[]
+                    try:
+                        features = terms_dict[0]["特征词"]
+                    except:
+                        features = []
+                    # 添加可能的部位
+                    # for r in f_region:
+                    #     if r.strip() in icd.encode('utf8'):
+                    #         regions.append(r.strip())
+                    tmp.append([icd.encode('utf8'),icd_dict[icd].encode('utf8'),source_name,list(set(regions)),list(set(features))])
+            if tmp:
+                core_dict[d["seg"].encode('utf8')]=tmp
 
 
     # terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": icd_list}),
@@ -186,8 +188,8 @@ def build_icd_code_dict(icd_path, out_path, source, pos):
 
 # extract_icd("../data/icd/北京临床ICD9(v7.01).xls","../data/icd/cache/shoushu/BJ_icd_name.csv",1,0)
 # build_icd_norm("../data/icd/cache/zhenduan/LC_icd_name.csv", "../data/icd/cache/zhenduan/LC_icd_norm.csv",utils.SERVICE_URL_ZD)
-# build_icd_type_norm("../data/icd/cache/zhenduan/BJ_icd_name.csv", "../data/icd/cache/zhenduan/BJ_icd_core.json", "中心词",
-#                     "北京临床版")
+# build_icd_type_norm("../data/icd/cache/zhenduan/GB_icd_name.csv", "../data/icd/cache/zhenduan/GB_icd_region.json", ["部位","成分"],
+#                     "国标版")
 # build_icd_code_dict("../data/icd/cache/shoushu/BJ_icd_name.csv", "../data/icd/cache/shoushu/BJ_icdcode_dict.csv","北京临床版",2)
 
 def remove_para(data):
@@ -260,4 +262,17 @@ def find_difference(path):
                 # print lines[i],lines[i+1]
             i += 3
 
+def seg_icd(path):
+    '''
+
+    :return:
+    '''
+    for l in open("../data/icd/cache/zhenduan/"+path+"_icd_name.csv").xreadlines():
+        icd=l.split("\t")[0]
+        terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": [icd]}),
+                                        headers=utils.HEADERS).content.decode('utf8'))
+        if "部位" not in terms_dict[0].keys():
+            print icd
 # find_difference("../data/output/国标-临床版.csv")
+
+# seg_icd("LC")

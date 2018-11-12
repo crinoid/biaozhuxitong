@@ -21,10 +21,10 @@ SERVICE_URL_ZD_SEG = "http://127.0.0.1:8006/seg" #小粒度
 HEADERS = {'content-type': 'application/json'}
 
 
-#bcjl_model:分词粒度大（如 肾积水），bcjl_model1:分词粒度小（如 肾/积水）
+bcjl_model:分词粒度大（如 肾积水），bcjl_model1:分词粒度小（如 肾/积水）
 ft_model=FastText()
 ft_model.load_model('../data/bcjl_model.bin')
-
+#ft_model=""
 
 SYN_THRESHOLD=0.75
 SIMILARITY_THRESHOLD=0.8
