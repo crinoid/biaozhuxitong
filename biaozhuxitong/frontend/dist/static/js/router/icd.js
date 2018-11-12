@@ -55,7 +55,7 @@ var MatchICD = Vue.extend({
             data: {dis: dis, source_list: JSON.stringify(source_list),db:_self.$route.params.id},
             success: function (data) {
               _self.icds = data["res"][0][1]
-              if (vutils.isEmptyObject(data["res"][0][dis])){
+              if (vutils.isEmptyObject(data["res"][0][1])){
                 _self.match_result="暂无结果"
               }
               else
