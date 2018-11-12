@@ -19,8 +19,8 @@ rm_digits_dis = Clean.rm_dis_digits
 
 
 class SegSingleSentence(object):
-    def __init__(self, usr_dict_path, usr_delete_path, usr_suggest_path, stop_words_path, HMM=False, SUFFIX=False):
-        self.__tuning_jieba(usr_dict_path, usr_delete_path, usr_suggest_path)
+    def __init__(self, usr_dict_path, usr_suggest_path, stop_words_path,dict_origin_path,usr_delete_path,  HMM=False, SUFFIX=False):
+        self.__tuning_jieba(usr_suggest_path,dict_origin_path,usr_delete_path,usr_dict_path)
         self.stop_words = set(w for w in self.loading_stop_words(stop_words_path)) if stop_words_path else None
         self.HMM = HMM
         self.clean_pipe = self.build_clean_pipe()
@@ -37,8 +37,21 @@ class SegSingleSentence(object):
         return func_combiner([replace_negative_positive, replace_punctuation, rm_digits_dis])
 
     @classmethod
-    def __tuning_jieba(cls, usr_dict_path, usr_delete_path, usr_suggest_path):
+    def __tuning_jieba(cls, usr_suggest_path,dict_origin_path,usr_delete_path,usr_dict_path):
+        #按这个顺序
+        if usr_suggest_path:
+            if isinstance(usr_suggest_path, str):
+                JT.suggest_usr_dict(usr_suggest_path, sep='\t')
+            elif isinstance(usr_suggest_path, list):
+                for usp in usr_suggest_path:
+                    JT.suggest_usr_dict(usp, sep='\t')
+            else:
+                raise TypeError('usr_suggest_path %s wrong type' % usr_suggest_path)
+        if usr_delete_path:
+            # 主要是去掉"性肺炎，性肝炎"
+            JT.delete_usr_dict(usr_delete_path)
         if usr_dict_path:
+            # 添加词库中的词
             if isinstance(usr_dict_path, str):
                 JT.add_usr_dict(usr_dict_path, sep='\t')
             elif isinstance(usr_dict_path, list):
@@ -48,17 +61,9 @@ class SegSingleSentence(object):
                 JT.add_usr_db(usr_dict_path)
             else:
                 raise TypeError('usr_dict_path %s wrong type' % usr_dict_path)
-        if usr_delete_path:
-            # 编目匹配需要，分词使用小粒度，要去掉一些词库自带的词
-            JT.delete_usr_dict(usr_delete_path)
-        if usr_suggest_path:
-            if isinstance(usr_suggest_path, str):
-                JT.suggest_usr_dict(usr_suggest_path, sep='\t')
-            elif isinstance(usr_suggest_path, list):
-                for usp in usr_suggest_path:
-                    JT.suggest_usr_dict(usp, sep='\t')
-            else:
-                raise TypeError('usr_suggest_path %s wrong type' % usr_suggest_path)
+        if dict_origin_path:
+            # 重写词库原有的词，以免修改freq造成分词不准
+            JT.add_origin_dict(dict_origin_path)
 
     def loading_stop_words(self, path):
         stop_words = []

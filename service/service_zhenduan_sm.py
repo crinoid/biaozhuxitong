@@ -123,19 +123,12 @@ def get_sugs():
     result = get_sug_dic()
     return jsonify(result)
 
-#
+
 if __name__ == '__main__':
     app.run(
             # host='0.0.0.0',
             port=8006
     )
 
-# a = seg_sentences_array([u"反复低血糖",u"高血压2级"])
-# print sugss(a)
-# import requests
-# import json
-# terms_dict = requests.post("http://127.0.0.1:8006/service", data=json.dumps({"diag": [u"低血糖"]}),
-#                            headers={'content-type': 'application/json'}).content.decode('utf8')
-
-# terms_dict =requests.post("http://127.0.0.1:8006/service", data=json.dumps({"diag": [u"低血糖"], "seg_para": False}),headers={'content-type': 'application/json'}).content.decode('utf8')
-# print terms_dict
+# result_seg = seg_sentences_array(["肺结核病"])
+# print result_seg

@@ -154,4 +154,9 @@ if __name__ == '__main__':
             port=8002
     )
 
-
+# result_seg = seg_sentences_array(["前臂骨折"])
+# print result_seg
+# result_seg={u"高血压":[u"2级"]}
+# import json
+# new_seg = json.dumps(result_seg, ensure_ascii=True)
+# print type(new_seg)

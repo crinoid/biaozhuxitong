@@ -25,16 +25,17 @@ class JiebaTuning(object):
                     jieba.add_word(items[0].rstrip().lower())
                 else:
                     raise ValueError('too less number of word info \'%s\'' % (l.strip()))
-    @staticmethod
-    def add_usr_db(data,freq=100):
-        for d in data:
-            jieba.add_word(d["seg"],freq=freq)
 
     @staticmethod
     def delete_usr_dict(path):
         with open(path, 'r') as f:
             for l in f.xreadlines():
                 jieba.del_word(l.strip())
+
+    @staticmethod
+    def add_usr_db(data,freq=100):
+        for d in data:
+            jieba.add_word(d["seg"],freq=freq)
 
 
     @staticmethod
@@ -43,6 +44,16 @@ class JiebaTuning(object):
             for l in f.xreadlines():
                 word1, word2 = l.split(sep)[0].rstrip(), l.split(sep)[1].rstrip()
                 jieba.suggest_freq((word1, word2), True)
+
+    @staticmethod
+    def add_origin_dict(path, sep=' '):
+        with open(path, 'r') as f:
+            for l in f.xreadlines():
+                items = l.split(sep)
+                if len(items) == 3:
+                    jieba.add_word(items[0].rstrip().lower(), int(items[1].rstrip()), items[2].rstrip())
+                else:
+                    raise ValueError('too less number of word info \'%s\'' % (l.strip()))
 
 
 def create_multi_replace_re(replace_dict):
