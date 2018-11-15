@@ -18,9 +18,9 @@ def service():
         json = request.get_json()
         # print json
         if "seg_para" in json.keys():
-            result_seg = seg_sentences(json["diag"],json["seg_para"])
+            result_seg = seg_sentences_array(json["diag"],json["seg_para"])
         else:
-            result_seg = seg_sentences(json["diag"])
+            result_seg = seg_sentences_array(json["diag"])
         # print result_seg
         result_sug = sugss(result_seg)
     except:

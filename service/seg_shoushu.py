@@ -34,5 +34,5 @@ data2 = copy.deepcopy(data)
 
 path = 'data/'
 
-segment = SegSingleSentence(usr_dict_path=data2, usr_suggest_path="", stop_words_path=path + 'stop_words_zhenduan.csv',
+segment = SegSingleSentence(usr_dict_path=data2, usr_suggest_path="", stop_words_path=path + 'stop_words_shoushu.csv',
                             dict_origin_path=path + "dict.txt", usr_delete_path=path + "terms_for_remove.csv")
