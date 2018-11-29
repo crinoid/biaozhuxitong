@@ -11,7 +11,7 @@ from pyfasttext import FastText
 import jieba
 
 
-SERVICE_URL_SS = "http://127.0.0.1:8001/seg"
+SERVICE_URL_SS = "http://127.0.0.1:8001/service"
 SERVICE_URL_ZD2 = "http://127.0.0.1:8002/service" #大粒度
 SERVICE_URL_ZD = "http://127.0.0.1:8006/service" #小粒度
 SERVICE_URL_ZD_SEG = "http://127.0.0.1:8006/seg" #小粒度
@@ -21,10 +21,10 @@ SERVICE_URL_ZD_SEG = "http://127.0.0.1:8006/seg" #小粒度
 HEADERS = {'content-type': 'application/json'}
 
 
-bcjl_model:分词粒度大（如 肾积水），bcjl_model1:分词粒度小（如 肾/积水）
+#bcjl_model:分词粒度大（如 肾积水），bcjl_model1:分词粒度小（如 肾/积水）
 ft_model=FastText()
-ft_model.load_model('../data/bcjl_model.bin')
-#ft_model=""
+ft_model.load_model('../../model/bcjl_model.bin')
+# ft_model=""
 
 SYN_THRESHOLD=0.75
 SIMILARITY_THRESHOLD=0.8
@@ -161,7 +161,7 @@ def seg_cores():
     #     if len(list(segs))>1:
     #         print a["seg"]
 
-def auto_match(term, size):
+def auto_match(term, size,database):
     '''
     找到跟某个未知的词相关的size个，预测成分
     :param term: 输入的词
@@ -178,10 +178,10 @@ def auto_match(term, size):
     for m in ft_model.nearest_neighbors(term, k=size):
         weight -= 0.2
         try:
-            # database = ZhenDuan()
-            # if dbname == "shoushu":
-            #     database = ShouShu()
-            a = db.zd_suggest.find_one({"seg":(m[0])})
+            if database=="zhenduan":
+                a = db.zd_suggest.find_one({"seg":(m[0])})
+            elif database=="shoushu":
+                a = db.ss_suggest.find_one({"seg": (m[0])})
             dic[a["sug"]] += m[1] + weight
             similarity[str(i)] = [m[0], a["sug"], round(m[1], 4)]
             i += 1
@@ -320,4 +320,4 @@ def to_string(a):
 #     print i[0],i[1]
 
 
-# print compare_word_similarity("高危","极高危")
+# print compare_word_similarity("阑尾炎","盲肠炎")

@@ -168,7 +168,7 @@ class MatchingICD(object):
         terms_dict = requests.post(utils.SERVICE_URL_ZD_SEG, data=json.dumps({"diag": catalog}),
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
-        for item in terms_dict["diag"]:
+        for item in terms_dict:
             syns_item = []
             all_segs = merge(item[1])  # [肺动脉栓塞，肺血栓栓塞……]
             for a in all_segs:
@@ -541,11 +541,11 @@ def icd_service(data, source_list, size=MATCH_COUNT, is_enable_ft=False, ):
     '''
 
     res = m_icd.matched_dis(data, source_list, size)
-    # for k in res:
-    #     print k[0]
-    #     for icd in k[1]:
-    #         print icd[0], icd[1], icd[2], icd[3]
-    #     print "-----"
+   # for k in res:
+   #     print k[0]
+   #     for icd in k[1]:
+    #        print icd[0], icd[1], icd[2], icd[3]
+    #    print "-----"
 
     return res
 
@@ -567,7 +567,7 @@ def icd_code_service(data, source_list, size=MATCH_COUNT):
     return res
 
 
-# icd_service(["小阴唇囊肿剥除术后"], ["LC"], size=5)
+# icd_service(["心肌梗塞"], ["LC"], size=5)
 # icd_code_service(["R23.1","R24"], ["BJ","GB","LC"])
 
 '''

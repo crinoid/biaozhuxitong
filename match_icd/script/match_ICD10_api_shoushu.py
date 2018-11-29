@@ -108,9 +108,9 @@ class MatchingICD(object):
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
 
-        for item in terms_dict["diag"]:
-            if "部位/范围" not in item.keys():
-                terms_dict["diag"].remove(item)
+        # for item in terms_dict:
+        #     if "部位/范围" not in item.keys():
+        #         terms_dict["diag"].remove(item)
 
         # 按部位匹配
         res_region = self.get_same_position(terms_dict, source_list)
@@ -181,7 +181,7 @@ class MatchingICD(object):
         '''
         position_dic = dict()
 
-        for sentence in dis_sentence["diag"]:
+        for sentence in dis_sentence:
             diagnose = sentence["原文"]  # 诊断名
 
             if diagnose in matched:
