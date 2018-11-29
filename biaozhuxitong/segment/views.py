@@ -38,7 +38,6 @@ def send_segment(request):
             # info['checked'] = []  # 已经查看过的index
 
             filename = request.session.get(utils.SESSION_FILE, "")
-            msg_list = []  # 分词结果
             if filename == "":
                 msg = request.POST.get("msg", "")
                 msg_list = seg_from_disk(msg)
@@ -47,23 +46,25 @@ def send_segment(request):
 
 
             # 分词每次分MAX_TERM个，避免时间过长
-            # seg_list = call_seg_api(json.dumps({"diag": msg_list}))["diag"]
             data = msg_list[:utils.SEGS_PER_PAGE] if len(msg_list) > utils.SEGS_PER_PAGE else msg_list
             seg_list = update_segments(data,dbname)
 
             terms = []  # 文本的分词
+
+            for i,origin in enumerate(msg_list):
+                info['origin'][i+1] = origin #所有数据，用于计算总共多少页
+
             i = 1
-            # msg_list是正序的，为了保持顺序（遍历字典顺序会错乱），通过msg_list遍历
-            for origin in msg_list:
-                info['origin'][i] = origin
+            for seg_item in seg_list:
+                # info['origin'][i] = seg_item[0]
                 # 获取第一页的分词，显示来源
                 if i <= utils.SEGS_PER_PAGE:
                     info['seg'][i] = dict()
                     tmp=[]
-                    for j in range(len(seg_list[origin])):
-                        seg_list[origin][j] = seg_list[origin][j].decode('utf8')
-                        info['seg'][i][j + 1] = [s for s in seg_list[origin][j]]
-                        tmp.append(seg_list[origin][j])
+                    for j,seg in enumerate(seg_item[1]):
+                        seg = seg.decode('utf8')
+                        info['seg'][i][j + 1] = [s for s in seg]
+                        tmp.append(seg)
                     terms.append(tmp)
                 i += 1
 
@@ -79,7 +80,7 @@ def send_segment(request):
 
 
 def update_segments(data, dbname):
-    return call_seg_api(json.dumps({"diag": data}), dbname)["diag"]
+    return call_seg_api(json.dumps({"diag": data}), dbname)
 
 
 def call_seg_api(data, dbname):
@@ -164,9 +165,8 @@ def update_seg_source(request):
             res["segs"] = []
             terms = []
             # 保证顺序不变，依照items的来
-            for k in items:
-                v = res_segs[k.encode('utf8')]
-                # for k,v in res_segs.iteritems():
+            for segs in res_segs:
+                v = segs[1]
                 tmp1 = []
                 for s in v:
                     tmp = []
@@ -175,10 +175,8 @@ def update_seg_source(request):
                     tmp1.append(tmp)
                 res["segs"].append(tmp1)
 
-                terms.append(res_segs[k.encode('utf8')])
+                terms.append(segs[1]) #每条数据的分词结果数组
 
-            # for k,v in res_segs.iteritems():
-            #     terms.append(v)
             res["sources"] = get_seg_source(request.session.get(utils.SESSION_DB, ""), terms)  # 更新来源
 
         return HttpResponse(json.dumps(res), content_type='application/json')

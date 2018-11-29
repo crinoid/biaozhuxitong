@@ -17,9 +17,9 @@ from pyfasttext import FastText
 
 from prpcrypt import prpcrypt
 
-# ft_model=""
-ft_model=FastText()
-ft_model.load_model('bcjl_model.bin')
+ft_model=""
+# ft_model=FastText()
+# ft_model.load_model('bcjl_model.bin')
 
 
 SPECIAL_CHARACTERS = ['\n', '\t', '\r\n', ' ']
@@ -32,7 +32,7 @@ COLOR_LIST = ["#c0a16b", "#e4b9c0", "#f7ecb5", "#31b0d5", "#add8e6", "#8fbc8f",
 UNKNOWN_COLOR = "#fffff0"
 
 seg_service_url_zd = "http://127.0.0.1:8002/seg_service"
-seg_service_zd_array = "http://127.0.0.1:8002/seg" #按顺序返回数组
+# seg_service_zd_array = "http://127.0.0.1:8002/seg_service" #按顺序返回数组
 sug_service_url_zd = "http://127.0.0.1:8002/sug_service"
 all_segs_service_url_zd = "http://127.0.0.1:8002/get_all_segs"
 update_seg_url_zd = "http://127.0.0.1:8002/update_seg"

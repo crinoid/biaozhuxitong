@@ -38,10 +38,6 @@ def send_suggest(request):
             if origin_msg:
                 origin_msg = origin_msg.split(",")
 
-            ft_model = ""
-            # ft_model = FastText()
-            # ft_model.load_model('bcjl_model.bin')
-
             filename = request.session.get(utils.SESSION_FILE, "")
 
             info = dict()
@@ -49,7 +45,7 @@ def send_suggest(request):
             # 手动输入
             if filename == "":
                 # 诊断的分词对应标注和来源
-                info['sug'], info['source'], info['msg'] = get_sug_from_disk(new_sugs, ft_model,
+                info['sug'], info['source'], info['msg'] = get_sug_from_disk(new_sugs,
                                                                              request.session.get(utils.SESSION_DB, ""))
             # 从文件读取
             else:
@@ -64,7 +60,7 @@ def send_suggest(request):
                 info['sug'], info['source'], info['msg'] = sort_sugs_by_category(origin_msg,
                                                                                  "从文件 " + request.session.get(
                                                                                      utils.SESSION_ORIGIN_FILE, ""),
-                                                                                 new_sugs, ft_model,
+                                                                                 new_sugs,
                                                                                  request.session.get(utils.SESSION_USER,
                                                                                                      ""),
                                                                                  request.session.get(utils.SESSION_DB,
@@ -87,7 +83,7 @@ def send_suggest(request):
         return HttpResponse(json.dumps(info), content_type='application/json')
 
 
-def get_sug_from_disk(new_sugs, ft_model, dbname):
+def get_sug_from_disk(new_sugs, dbname):
     '''
     手动输入分词，获得标注
     :param logger:
@@ -96,30 +92,29 @@ def get_sug_from_disk(new_sugs, ft_model, dbname):
     :param dbname:
     :return:
     '''
-
-    num = 1
     info_sug, res_source = [], []
     new_sugs = new_sugs.split(";")
+    sug_data = []
     for origin_cut in new_sugs:
+        sugs = [c1 for c1 in origin_cut.split(",")]
+        sentence = origin_cut.replace(",", "")
 
-        sug_dic = {num: utils.SEP.join(origin_cut[:-1].split(","))}
-        num += 1
+        sug_data.append([sentence, sugs[:-1]])  # sugs最后一个元素是空
 
-        url = utils.sug_service_url(dbname)
-        sug_list = eval(requests.post(url, data=json.dumps(sug_dic), headers=utils.headers).content.decode('utf8'))
+    url = utils.sug_service_url(dbname)
+    sug_list = eval(requests.post(url, data=json.dumps({"diag": sug_data, "auto_match": True}),
+                                  headers=utils.headers).content.decode('utf8'))
+    # [高血压2级,[[高血压，中心词]，[2级，特征词]]]
 
+    for sugs in sug_list:
         terms = []
-
-        for msg, sug_list1 in sug_list.iteritems():
-            for k, sugs in sug_list1.iteritems():
-                tmp = []
-                for sug1 in sugs:  # sug1["高血压","中心词"]
-                    if sug1[1] == "":
-                        sug1[1] = utils.auto_match(sug1[0], dbname, 10)
-                        # sug1[1] = u"未知"
-                    tmp.append([sug1[0], sug1[1]])
-                if tmp:
-                    info_sug.append(tmp)
+        tmp = []
+        for term in sugs[1]:  # terms["高血压","中心词"]
+            if term[1] == "":
+                term[1] = u"未知"
+            tmp.append([term[0], term[1]])
+        if tmp:
+            info_sug.append(tmp)
         terms.append(tmp)
         res_source.append(utils.get_database(dbname).get_sug_source(terms, utils.MAX_TERMS)[0])
     return info_sug, res_source, ""
@@ -177,53 +172,54 @@ def get_sug_from_file(filename, seg_index_list):
     return edit_count
 
 
-def sort_sugs_by_category(origin_msg, origin_file, new_segs, ft_model, username, dbname):
+def sort_sugs_by_category(origin_msg, origin_file, new_segs, username, dbname):
     '''
     从文件读取，将标注按标注类型排序，优先级："未知"--"未知"猜词--"其他"
     :param origin_msg: 原文
     :param origin_file: 用于日志
     :param new_segs: 分词
-    :param ft_model:
     :param username:
     :param dbname:
     :return:
     '''
-    unknown, unknown_predict, others, rest = [], [], [], []
-    unknown_source, unknown_predict_source, others_source, rest_source = [], [], [], []
-    unknown_msg, unknown_predict_msg, others_msg, rest_msg = [], [], [], []
-
-    index = 0
 
     new_segs = new_segs.split(utils.SEP)
+    sug_data = []
 
     for origin_cut in new_segs:
         terms = []
         utils.log_sug_info(username, origin_file, dbname, "添加分词", origin_cut[:-1].replace(",", "/"))
 
-        sug_dic = {origin_msg[index]: utils.SEP.join(origin_cut[:-1].split(","))}
-        index += 1
+        sugs = [c1 for c1 in origin_cut.split(",")]
+        sentence = origin_cut.replace(",", "")
 
-        url = utils.sug_service_url(dbname)
-        sug_list = eval(requests.post(url, data=json.dumps(sug_dic), headers=utils.headers).content.decode('utf8'))
+        sug_data.append([sentence, sugs[:-1]])  # sugs最后一个元素是空
 
-        sug_list1 = sug_list["sug"]
+    url = utils.sug_service_url(dbname)
+    sug_list = eval(requests.post(url, data=json.dumps({"diag": sug_data, "auto_match": True}),
+                                  headers=utils.headers).content.decode('utf8'))
+    # [高血压2级,[[高血压，中心词]，[2级，特征词]]]
+
+    unknown, unknown_source, unknown_msg = [], [], []
+
+    for sugs in sug_list:
         is_unknown, is_predict, is_others = False, False, False
+        unknown_predict, others, rest = [], [], []
+        unknown_predict_source, others_source, rest_source = [], [], []
+        unknown_predict_msg, others_msg, rest_msg = [], [], []
 
-        for origin, sugs in sug_list1.iteritems():  # origin:原文， sug1["高血压","中心词"]
-            tmp = []
-            for sug1 in sugs:
-                if sug1[1] == "":
-                    # 未知分词使用fasttext推测
-                    sug1[1] = utils.auto_match(sug1[0], dbname, 10)
-                    # sug1[1] = u"未知"
-                    if sug1[1]==u"未知":
-                        is_unknown = True
-                    else:
-                        is_predict=True
-                elif sug1[1] == u"其他" or sug1[1] == '其他':
-                    is_others = True
-                tmp.append([sug1[0], sug1[1]])
-                terms.append([sug1[0], sug1[1]])
+        origin = sugs[0]
+        tmp = []
+        for sug in sugs[1]:  # sugs:["高血压","中心词"]
+            if sug[1] == "":
+                sug[1] = u"未知"
+                is_unknown = True
+            else:
+                is_predict = True  # 不是未知的词可以显示来源
+            if sug[1] == u"其他" or sug[1] == '其他':
+                is_others = True
+            tmp.append(sug)
+            terms.append(sug)
         if is_unknown:
             unknown.append(tmp)
             unknown_source.append(terms)
@@ -241,19 +237,18 @@ def sort_sugs_by_category(origin_msg, origin_file, new_segs, ft_model, username,
             rest_source.append(terms)
             rest_msg.append(origin)
 
-    unknown.extend(unknown_predict)
-    unknown.extend(others)
-    unknown.extend(rest)
+        unknown.extend(unknown_predict)
+        unknown.extend(others)
+        unknown.extend(rest)
 
-    unknown_source.extend(unknown_predict_source)
-    unknown_source.extend(others_source)
-    unknown_source.extend(rest_source)
+        unknown_source.extend(unknown_predict_source)
+        unknown_source.extend(others_source)
+        unknown_source.extend(rest_source)
 
-    unknown_msg.extend(unknown_predict_msg)
-    unknown_msg.extend(others_msg)
-    unknown_msg.extend(rest_msg)
+        unknown_msg.extend(unknown_predict_msg)
+        unknown_msg.extend(others_msg)
+        unknown_msg.extend(rest_msg)
 
-    # unknown_source:list[{'高血压':中心词，'2型':分型}，{'糖尿病'：}] type:str
     source = utils.get_database(dbname).get_sug_source(unknown_source, utils.MAX_TERMS)
     return unknown, source, unknown_msg
 
@@ -316,8 +311,6 @@ def update_sug_source(request):
         #
         # unknown_source.extend(others_source)
         # unknown_source.extend(rest_source)
-
-
 
         res = get_sug_source(request.session.get(utils.SESSION_DB, ""), terms)
 
