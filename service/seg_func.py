@@ -19,7 +19,7 @@ rm_digits_dis = Clean.rm_dis_digits
 
 
 class SegSingleSentence(object):
-    def __init__(self, usr_dict_path, usr_suggest_path, stop_words_path,dict_origin_path,usr_delete_path,  HMM=False, SUFFIX=False):
+    def __init__(self, usr_dict_path, usr_suggest_path, stop_words_path,dict_origin_path,usr_delete_path,  HMM=False, SUFFIX=True):
         self.__tuning_jieba(usr_suggest_path,dict_origin_path,usr_delete_path,usr_dict_path)
         self.stop_words = set(w for w in self.loading_stop_words(stop_words_path)) if stop_words_path else None
         self.HMM = HMM
@@ -195,39 +195,14 @@ def get_seg_dic():
     return seg_dic  # dic:{分词:标注}
 
 
-def seg_sentences(sentences, segment, seg_para=True):
-    output_dic = {}
-    result_dic = {}  # 一个类别下的分词
-
-    try:
-        for sentence in sentences:  # [高血压2级,多根肋骨骨折...]
-            if isinstance(sentence, unicode):
-                sentence = sentence.encode("utf8")
-            post_sentence = sentence
-            if not seg_para:
-                # 去掉括号的内容
-                post_sentence = re.sub("\(.*?\)", "", post_sentence)
-            result = []
-            segs = segment.seg(post_sentence)
-            r = map(upper_lower, [sentence] * len(segs), segs)
-            result.extend(r)
-            result_dic[sentence] = result  # 高血压2级:[高血压,2级]
-
-        output_dic["diag"] = result_dic  # 诊断:{高血压2级:[高血压,2级],多根肋骨骨折:[多根,肋骨骨折]}
-
-        return output_dic
-    except Exception, e:
-        return e.message
-
-
-def seg_sentences_array(sentences,segment,seg_para=True):
+def seg_sentence(sentences, segment, seg_para=True):
     '''
 
     :param sentences:
     :param seg_para:
     :return: {"diag":[(高血压2级,[高血压，2级]),(肋骨骨折,[肋骨，骨折])]}
     '''
-    output_dic = {}
+    # output_dic = {}
     result_dic = []  # 一个类别下的分词
 
     for sentence in sentences:  # [高血压2级,多根肋骨骨折...]
@@ -243,10 +218,9 @@ def seg_sentences_array(sentences,segment,seg_para=True):
         result.extend(r)
         result_dic.append([sentence, result])  # 高血压2级:[高血压,2级]
 
-    output_dic["diag"] = result_dic  # 诊断:{高血压2级:[高血压,2级],多根肋骨骨折:[多根,肋骨骨折]}
+    # output_dic["diag"] = result_dic  # 诊断:{高血压2级:[高血压,2级],多根肋骨骨折:[多根,肋骨骨折]}
 
-    return output_dic
-
+    return result_dic
 
 def upper_lower(origin, seg):
     seg = seg.encode('utf8')

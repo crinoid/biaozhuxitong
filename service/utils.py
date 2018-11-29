@@ -4,12 +4,16 @@ import jieba
 import re
 import types
 import functools
+from pyfasttext import FastText
 
 numerical_type = (types.IntType, types.FloatType, types.LongType, types.ComplexType)
 CLRF = '\n'
 SEG_SPLIT = ';'
 re_INTEGER = re.compile('^[-+]?[0-9]+$')
 
+ft_model=FastText()
+ft_model.load_model('../model/bcjl_model.bin')
+# ft_model=""
 
 class JiebaTuning(object):
     @staticmethod
@@ -88,3 +92,33 @@ class PreClean(object):
     @classmethod
     def rm_dis_digits(cls, dis):
         return re.sub("\d*[.,]", "", dis)
+
+def auto_match(term,database, size=10):
+    '''
+    找到跟某个未知的词相关的size个，预测成分
+    :param term: 输入的词
+    :param database: 数据库
+    :param size:
+    :return: 成分
+    '''
+    dic = {u"部位": 0, u"中心词": 0, u"病因": 0, u"病理": 0, u"特征词": 0, u"连接词": 0, u"判断词": 0, u"其他": 0, u"未知": 0}
+    similarity = {}
+    weight = 2
+    i = 0
+    if type(term)==unicode:
+        term = term.encode('utf8')
+    for m in ft_model.nearest_neighbors(term, k=size):
+        weight -= 0.2
+        try:
+            a = database.find_one({"seg":(m[0])})
+            dic[a["sug"]] += m[1] + weight
+            similarity[str(i)] = [m[0], a["sug"], round(m[1], 4)]
+            i += 1
+        except:
+            # 降低未知的权值，保证如果有识别出的成分，选择那个成分
+            dic[u"未知"] += m[1] + weight * 0.001
+            similarity[str(i)] = [m[0], u"未知", round(m[1], 4)]
+            i += 1
+
+    sug = sorted(dic.items(), key=lambda x: x[1], reverse=True)[0]
+    return sug[0]

@@ -8,7 +8,7 @@ from flask import Flask, jsonify
 from flask import abort
 from flask import request
 
-from seg_zhenduan_sm import seg_sentences, seg_sentences_array, update_segment, get_seg_dic
+from seg_zhenduan_sm import seg_sentence,update_segment, get_seg_dic
 from sug_zhenduan_sm import sugss, sug_sentence, update_suggestion, get_sug_dic
 
 
@@ -23,9 +23,9 @@ def service():
     try:
         json = request.get_json()
         if "seg_para" in json.keys():
-            result_seg = seg_sentences_array(json["diag"],json["seg_para"])
+            result_seg = seg_sentence(json["diag"],json["seg_para"])
         else:
-            result_seg = seg_sentences_array(json["diag"])
+            result_seg = seg_sentence(json["diag"])
         result_sug = sugss(result_seg)
         # res = {"diag":result_sug}
         # print "res",res
@@ -53,9 +53,9 @@ def seg_service():
     try:
         json = request.get_json()
         if "seg_para" in json:
-            result_seg = seg_sentences(json["diag"],json[["seg_para"]])
+            result_seg = seg_sentence(json["diag"],json[["seg_para"]])
         else:
-            result_seg = seg_sentences(json["diag"])
+            result_seg = seg_sentence(json["diag"])
         # result_seg = seg_sentences(request.get_json())
     except:
         abort(400)
@@ -70,9 +70,9 @@ def seg():
     try:
         json = request.get_json()
         if "seg_para" in json:
-            result_seg = seg_sentences_array(json["diag"],json[["seg_para"]])
+            result_seg = seg_sentence(json["diag"],json[["seg_para"]])
         else:
-            result_seg = seg_sentences_array(json["diag"])
+            result_seg = seg_sentence(json["diag"])
         # result_seg = seg_sentences(request.get_json())
     except:
         abort(400)
@@ -130,5 +130,5 @@ if __name__ == '__main__':
             port=8006
     )
 
-# result_seg = seg_sentences_array(["肺结核病"])
-# print result_seg
+# result_seg = seg_sentence(["肺结核病"])
+# print sugss(result_seg)

@@ -4,18 +4,13 @@ from seg_func import SegSingleSentence
 from pymongo import MongoClient
 import copy
 
-from seg_func import seg_sentences as seg_sent
-from seg_func import seg_sentences_array as seg_sent_arr
+from seg_func import seg_sentence as seg_sent
 from seg_func import update_segment as update_seg
 from seg_func import get_seg_dic as get_seg_d
 
 
-def seg_sentences(sentences):
+def seg_sentence(sentences):
     return seg_sent(sentences, segment)
-
-
-def seg_sentences_array(sentences):
-    return seg_sent_arr(sentences, segment)
 
 
 def update_segment():

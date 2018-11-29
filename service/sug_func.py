@@ -1,13 +1,16 @@
 # encoding=utf8
 import re
-from utils import SEG_SPLIT
+from utils import SEG_SPLIT,auto_match
 from collections import OrderedDict
 import pymongo
 from pymongo import MongoClient
 
 import copy
-
 import sys
+
+conn = MongoClient('localhost', 27017)
+db = conn.bzxt
+
 class Sug4Category(object):
     suffix_words = u'症$|后$|型$|期$|史$|程$|级$|性$|区$|周$|天$'
 
@@ -33,25 +36,41 @@ class Sug4Category(object):
         return self.word_category.get(word, None)
 
     def sug_by_dict_strip_suffix(self, word):
+        # 这个先不使用，就是以suffix结尾的词如果是未知，就使用去掉suffix word的词作为标注结果
         return self.word_category.get(re.sub(self.suffix_words, "", word), None)
 
-    def sug(self, sentence, sep=SEG_SPLIT):
+    def sug(self, sentence, database,is_auto_match,sep=SEG_SPLIT):
         for word in sentence.strip().split(sep):
-            word_upper = word.upper()
+            # word_upper = word.upper() #大小写过后再说
+            word_utf8 = word
             if isinstance(word, str):
-                word_upper = word.decode('utf8')
-            category = self.sug_by_dict(word_upper) or self.sug_by_dict_strip_suffix(word_upper)
+                word_utf8 = word.decode('utf8')
+            if isinstance(word, unicode):
+                word = word.encode('utf8')
+            category = self.sug_by_dict(word_utf8)
+            if is_auto_match and category == None:
+                category = auto_match(word, database)
+
+            # 不建议去掉前缀查找中心词
+            # category = self.sug_by_dict(word_upper) or self.sug_by_dict_strip_suffix(word_upper)
             yield (word, category)
 
 
-def update_suggestion():  # data:cursor数据库
+def update_suggestion(data):  # data:cursor数据库
     conn = MongoClient('localhost', 27017)
     db = conn.bzxt
-    data = db.zd_suggest.find({"state": "已存"})  # cursor数据库
-    data2 = copy.deepcopy(data)
+    if data=="zhenduan":
+        data_zd = db.zd_suggest.find({"state": "已存"})  # cursor数据库
+        data_new = copy.deepcopy(data_zd)
+    elif data=="zhenduan_sm":
+        data_zd = db.zd_suggest.find({"state": "已存"})  # cursor数据库
+        data_new = copy.deepcopy(data_zd)
+    elif data=="shoushu":
+        data_ss = db.ss_suggest.find({"state": "已存"})  # cursor数据库
+        data_new = copy.deepcopy(data_ss)
 
     try:
-        suggestion = Sug4Category(data2)
+        suggestion = Sug4Category(data_new)
         return suggestion
     except Exception,e:
         return e.message
@@ -64,69 +83,57 @@ def get_sug_dic():
 
 
 # 系统所用标注服务
-def sug_sentence(sentences,suggestion):
+def sug_sentence(sentences,suggestion,database,is_auto_match):
     # {高血压2级:高血压/2级,肋骨骨折:肋骨/骨折}
     # 用数组避免key有重复(分词有重复)
     try:
         result_dic = {}
-        sug_list = []  # [高血压/2级,糖尿病,肋骨/骨折...]
-        for msg, sentence in sentences.iteritems():
-            msg_dic = {}
-            for item in suggestion.sug(sentence):
+        msg_dic = []
+        # [高血压/2级,糖尿病,肋骨/骨折...]
+        for item in sentences: #["扩张性心脏病",["扩张性","心脏病"]]
+            if type(item[0])==unicode:
+                item[0]=item[0].encode('utf8')
+            sug_list = []
+            for sugs in suggestion.sug(";".join(item[1]),is_auto_match=is_auto_match,database=database):
                 # print item[0], item[1]
-                if item[1] == None:  # 不在词库中
-                    sug_list.append([item[0], ""])
+                if sugs[1] == None:  # 不在词库中
+                    sug_list.append([sugs[0], ""])
                 else:
-                    sug_list.append([item[0], item[1]])
-            msg_dic[msg] = sug_list
-        result_dic["sug"] = msg_dic
-        return result_dic  # {高血压2级:[[高血压,中心词],[2级,分型]],肋骨骨折:[...]}
+                    sug_list.append([sugs[0], sugs[1].encode('utf8')])
+            msg_dic.append([item[0],sug_list])
+        # result_dic["sug"] = msg_dic
+        return msg_dic  # {高血压2级:[[高血压,中心词],[2级,分型]],肋骨骨折:[...]}
     except Exception,e:
         return e.message
 
 
 # 分词-标注一体的服务
-def sugss(items,suggestion,is_xml=False,is_encode=False):
+def sugss(items,suggestion,database,is_auto_match=False):
     '''
 
-    :param items: {diag: [高血压2级, [高血压, 2级]}]}
+    :param items: [[高血压2级, [高血压, 2级]}],[]]
     :param suggestion:
+    :param is_auto_match:是否使用fasttext猜测未知词
     :return: [原文:高血压2级，中心词:[高血压]，特征词:[2级]]
     '''
     # {key:{高血压2级:[高血压,2级]}}}
     # items:
     result_dic = []
     try:
-        xml_text=""
-        for item in items["diag"]:
-            if is_encode:
-                sug_dic = {}
-                sug_dic['原文'] = item[0]
-                for sugs in suggestion.sug(";".join(item[1])):
-                    value = sugs[0]
-                    if sugs[1] == None:  # 不在词库中
-                        key = "未知"
-                    else:
-                        key = sugs[1].encode('utf8')
-                    if key not in sug_dic.keys():
-                        sug_dic[key] = []
-                    sug_dic[key].append(value)
-                result_dic.append(sug_dic)
-
-                return result_dic
-
-
-
+        for item in items:
             sug_dic = {}
             # 写个转unicode的方法
             if type(item[0]) == str:
                 item[0] = item[0].decode('utf8')
             sug_dic[u'原文'] = item[0]
-            for sugs in suggestion.sug(";".join(item[1])):
+            for sugs in suggestion.sug(";".join(item[1]),database,is_auto_match):
                 value = sugs[0]
                 if type(value)==str:
                     value=value.decode('utf8')
                 if sugs[1] == None:  # 不在词库中
+                    # if is_auto_match:
+                    #     key=auto_match(value,database)
+                    # else:
                     key = u"未知"
                 else:
                     key = sugs[1]
@@ -134,34 +141,6 @@ def sugss(items,suggestion,is_xml=False,is_encode=False):
                     sug_dic[key] = []
                 sug_dic[key].append(value)
             result_dic.append(sug_dic)
-
-
-            reflection={
-                # "原文":"source",
-                u"部位":"region",
-                u"中心词":"core",
-                u"特征词": "feature",
-                u"判断词": "judgement",
-                u"连接词": "connection",
-                u"病因": "pathogeny",
-                u"病理": "pathology",
-                u"药品": "medicine",
-                u"其他": "others",
-                u"未知": "unknown",
-            }
-            if is_xml:
-                # 不要用unicode，用str(ascii)
-                xml_text="<source>"+sug_dic[u"原文"]
-                for sug,terms in sug_dic.iteritems():
-                    if sug!=u"原文":
-                        sug = reflection[sug]
-                        for term in terms:
-                            xml_text+="<"+sug+">"+term
-                        xml_text+="<"+sug+"/>"
-                xml_text+="</source>"
-        if is_xml:
-            return xml_text
-
 
     except Exception,e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

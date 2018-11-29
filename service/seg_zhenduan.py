@@ -4,18 +4,13 @@ from seg_func import SegSingleSentence
 from pymongo import MongoClient
 import copy
 
-from seg_func import seg_sentences as seg_sent
-from seg_func import seg_sentences_array as seg_sent_arr
+from seg_func import seg_sentence as seg_sent
 from seg_func import update_segment as update_seg
 from seg_func import get_seg_dic as get_seg_d
 
 
-def seg_sentences(sentences, seg_para=True):
+def seg_sentence(sentences, seg_para=True):
     return seg_sent(sentences, segment, seg_para)
-
-
-def seg_sentences_array(sentences):
-    return seg_sent_arr(sentences, segment)
 
 
 def update_segment():
@@ -38,3 +33,4 @@ segment = SegSingleSentence(usr_dict_path=data2, usr_suggest_path="", stop_words
                             dict_origin_path=path + "dict.txt", usr_delete_path=path + "terms_for_remove.csv")
 
 # update_segment()
+# print seg_sentences(["血小板性"])

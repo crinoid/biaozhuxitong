@@ -10,14 +10,14 @@ from sug_func import update_suggestion as update_sug
 from sug_func import get_sug_dic as get_sug_d
 
 def sugss(sentences):
-    return sugs(sentences,suggestion)
+    return sugs(sentences,suggestion,db.zd_suggest)
 
 def sug_sentence(sentences):
     return sug_sent(sentences,suggestion)
 
 def update_suggestion():
     global suggestion
-    suggestion = update_sug()
+    suggestion = update_sug("zhenduan_sm")
 
 def get_sug_dic():
     return get_sug_d()

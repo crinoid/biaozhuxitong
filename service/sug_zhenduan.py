@@ -1,4 +1,4 @@
-#coding=utf8
+# coding=utf8
 
 import copy
 from sug_func import Sug4Category
@@ -9,18 +9,23 @@ from sug_func import sug_sentence as sug_sent
 from sug_func import update_suggestion as update_sug
 from sug_func import get_sug_dic as get_sug_d
 
-def sugss(sentences,is_xml=False,is_encode=False):
-    return sugs(sentences,suggestion,is_xml,is_encode)
 
-def sug_sentence(sentences):
-    return sug_sent(sentences,suggestion)
+def sugss(sentences,is_auto_match=False):
+    return sugs(sentences, suggestion, db.zd_suggest, is_auto_match)
+
+
+def sug_sentence(sentences,is_auto_match=False):
+    return sug_sent(sentences, suggestion,db.zd_suggest,is_auto_match)
+
 
 def update_suggestion():
     global suggestion
-    suggestion = update_sug()
+    suggestion = update_sug("zhenduan")
+
 
 def get_sug_dic():
     return get_sug_d()
+
 
 conn = MongoClient('localhost', 27017)
 db = conn.bzxt
@@ -34,4 +39,5 @@ for line in data:
 
 suggestion = Sug4Category(data2)
 
-# print sugss({"diag":[["高血压2级",["高血压","2级"]],]},is_encode=True)
+# for k,v in sugss({"diag":[["肺结核性",["肺结核性"]]]})[0].iteritems():
+#     print k,v
