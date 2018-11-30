@@ -102,7 +102,7 @@ def get_sug_from_disk(new_sugs, dbname):
         sug_data.append([sentence, sugs[:-1]])  # sugs最后一个元素是空
 
     url = utils.sug_service_url(dbname)
-    sug_list = eval(requests.post(url, data=json.dumps({"diag": sug_data, "auto_match": True}),
+    sug_list = eval(requests.post(url, data=json.dumps({"terms": sug_data, "auto_match": True}),
                                   headers=utils.headers).content.decode('utf8'))
     # [高血压2级,[[高血压，中心词]，[2级，特征词]]]
 
@@ -196,7 +196,7 @@ def sort_sugs_by_category(origin_msg, origin_file, new_segs, username, dbname):
         sug_data.append([sentence, sugs[:-1]])  # sugs最后一个元素是空
 
     url = utils.sug_service_url(dbname)
-    sug_list = eval(requests.post(url, data=json.dumps({"diag": sug_data, "auto_match": True}),
+    sug_list = eval(requests.post(url, data=json.dumps({"terms": sug_data, "auto_match": True}),
                                   headers=utils.headers).content.decode('utf8'))
     # [高血压2级,[[高血压，中心词]，[2级，特征词]]]
 

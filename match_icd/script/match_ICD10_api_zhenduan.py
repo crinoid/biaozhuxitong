@@ -165,7 +165,7 @@ class MatchingICD(object):
 
         catalog_syns = {}  # 输入编目的同义词替换结果
         all_items = []  # 编目&同义词，都在一个数组中
-        terms_dict = requests.post(utils.SERVICE_URL_ZD_SEG, data=json.dumps({"diag": catalog}),
+        terms_dict = requests.post(utils.SERVICE_URL_ZD_SEG, data=json.dumps({"terms": catalog}),
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
         for item in terms_dict:
@@ -184,7 +184,7 @@ class MatchingICD(object):
             all_items.extend(syns_item)
 
         # 诊断标注，提取key=原文，部位，中心词
-        terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": all_items}),
+        terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": all_items}),
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
 
@@ -432,7 +432,7 @@ class MatchingICD(object):
             term_list.extend(map(syn_replace, [term] * len(self.syn_dict[term]), self.syn_dict[term]))
 
             # syn_term分词，
-            segs = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": self.syn_dict[term]}),
+            segs = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": self.syn_dict[term]}),
                                  headers=utils.HEADERS).content.decode('utf8')
             segs = eval(segs)
             tags_region, tags_core = [], []
@@ -535,17 +535,17 @@ m_icd = MatchingICD()
 def icd_service(data, source_list, size=MATCH_COUNT, is_enable_ft=False, ):
     '''
 
-    :param data: json格式的诊断，{diag:[]}
+    :param data: json格式的诊断，{terms:[]}
     :param is_enable_ft:是否使用fasttext猜词
     :return:
     '''
 
     res = m_icd.matched_dis(data, source_list, size)
-   # for k in res:
-   #     print k[0]
-   #     for icd in k[1]:
-    #        print icd[0], icd[1], icd[2], icd[3]
-    #    print "-----"
+    for k in res:
+        print k[0]
+        for icd in k[1]:
+            print icd[0], icd[1], icd[2], icd[3]
+        print "-----"
 
     return res
 
@@ -567,7 +567,7 @@ def icd_code_service(data, source_list, size=MATCH_COUNT):
     return res
 
 
-# icd_service(["心肌梗塞"], ["LC"], size=5)
+icd_service(["心肌梗塞"], ["LC"], size=5)
 # icd_code_service(["R23.1","R24"], ["BJ","GB","LC"])
 
 '''

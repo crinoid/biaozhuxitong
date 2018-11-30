@@ -1,4 +1,4 @@
-#coding=utf8
+# coding=utf8
 from flask import Flask, jsonify
 from flask import abort
 from flask import request
@@ -17,16 +17,16 @@ def service():
     try:
         json_data = request.get_json()
         if "seg_para" in json_data.keys():
-            result_seg = seg_sentence(json_data["diag"], json_data["seg_para"])
+            result_seg = seg_sentence(json_data["terms"], json_data["seg_para"])
         else:
-            result_seg = seg_sentence(json_data["diag"])
+            result_seg = seg_sentence(json_data["terms"])
         is_auto_match = False
         if "auto_match" in json_data.keys():
             is_auto_match = json_data["auto_match"]
         if "encode" in json_data.keys():
             result_sug = sugss(result_seg, is_encode=True, is_auto_match=is_auto_match)
         else:
-            result_sug = sugss(result_seg,is_auto_match=is_auto_match)
+            result_sug = sugss(result_seg, is_auto_match=is_auto_match)
     except Exception as e:
         abort(400)
     return jsonify(result_sug)
@@ -39,9 +39,9 @@ def seg_service():
     try:
         json = request.get_json()
         if "seg_para" in json:
-            result_seg = seg_sentence(json["diag"],json[["seg_para"]])
+            result_seg = seg_sentence(json["terms"], json[["seg_para"]])
         else:
-            result_seg = seg_sentence(json["diag"])
+            result_seg = seg_sentence(json["terms"])
     except:
         abort(400)
 
@@ -54,9 +54,10 @@ def sug_service():
         abort(400)
     try:
         json_data = request.get_json()
+        is_auto_match = False
         if "auto_match" in json_data.keys():
             is_auto_match = json_data["auto_match"]
-        result = sug_sentence(json_data["diag"],is_auto_match)
+        result = sug_sentence(json_data["terms"], is_auto_match)
     except:
         abort(400)
 
@@ -97,8 +98,8 @@ def get_sugs():
 
 if __name__ == '__main__':
     app.run(
-            # host='0.0.0.0',
-            port=8001
+        # host='0.0.0.0',
+        port=8001
     )
 
 # print sug_sentence([[u"肺结核性",[u"肺结核性"]]],is_auto_match=True)

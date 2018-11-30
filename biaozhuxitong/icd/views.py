@@ -167,14 +167,9 @@ def match_icd(request):
         dbname = request.POST.get("db", "")
 
         res = requests.post(utils.match_icd_url,
-                            data=json.dumps({"diag": [dis], "source": source_list, "dbname": dbname}),
+                            data=json.dumps({"terms": [dis], "source": source_list, "dbname": dbname}),
                             headers=utils.headers).content.decode('utf8')
         res = eval(res)  # [icd,icd_code,score]
-
-        # for k, v in res.iteritems():
-        #     for i in range(len(v)):
-        #         v[i].append(get_match_characters(v[i][0], dis))
-        #         res[k][i] = v[i]
 
         for item in res["res"]:
             for i in range(len(item[1])):
@@ -192,9 +187,9 @@ def match_icd_with_code(request):
         source_list = eval(request.POST.get("source_list", ""))
         dbname = request.POST.get("db", "")
 
-        post_data = json.dumps({"diag": {icd: code}, "source": source_list, "dbname": dbname})
+        post_data = json.dumps({"codes": {icd: code}, "source": source_list, "dbname": dbname})
         if icd == "":  # 只输入了code
-            post_data = json.dumps({"diag": [code], "source": source_list, "dbname": dbname})
+            post_data = json.dumps({"codes": [code], "source": source_list, "dbname": dbname})
 
         res = requests.post(utils.match_icd_code_url, data=post_data, headers=utils.headers).content.decode('utf8')
         res = eval(res)  # [icd,icd_code,score]

@@ -26,15 +26,15 @@ def service1():
         if data["dbname"] == "zhenduan":
             if "size" in data.keys():
                 if int(data["size"]) <= 10 and int(data["size"]) >= 1:
-                    result= zd_icd_service(data["diag"], data["source"], int(data["size"]))
+                    result= zd_icd_service(data["terms"], data["source"], int(data["size"]))
             else:
-                result = zd_icd_service(data["diag"], data["source"])
+                result = zd_icd_service(data["terms"], data["source"])
         elif data["dbname"] == "shoushu":
             if "size" in data.keys():
                 if int(data["size"]) <= 10 and int(data["size"]) >= 1:
-                    result= ss_icd_service(data["diag"], data["source"], int(data["size"]))
+                    result= ss_icd_service(data["terms"], data["source"], int(data["size"]))
             else:
-                result = ss_icd_service(data["diag"], data["source"])
+                result = ss_icd_service(data["terms"], data["source"])
 
     except:
         abort(400)
@@ -52,15 +52,15 @@ def service2():
         if data["dbname"] == "zhenduan":
             if "size" in data.keys():
                 if int(data["size"]) <= 10 and int(data["size"]) >= 1:
-                    result= zd_icd_code_service(data["diag"], data["source"], int(data["size"]))
+                    result= zd_icd_code_service(data["codes"], data["source"], int(data["size"]))
             else:
-                result = zd_icd_code_service(data["diag"], data["source"])
+                result = zd_icd_code_service(data["codes"], data["source"])
         elif data["dbname"] == "shoushu":
             if "size" in data.keys():
                 if int(data["size"]) <= 10 and int(data["size"]) >= 1:
-                    result= ss_icd_code_service(data["diag"], data["source"], int(data["size"]))
+                    result= ss_icd_code_service(data["codes"], data["source"], int(data["size"]))
             else:
-                result = ss_icd_code_service(data["diag"], data["source"])
+                result = ss_icd_code_service(data["codes"], data["source"])
     except:
         abort(400)
 

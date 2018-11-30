@@ -12,6 +12,7 @@ import json
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
+
 # 分词标注一体
 @app.route('/service', methods=['POST'])
 def service():
@@ -20,16 +21,16 @@ def service():
     try:
         json_data = request.get_json()
         if "seg_para" in json_data.keys():
-            result_seg = seg_sentence(json_data["diag"], json_data["seg_para"])
+            result_seg = seg_sentence(json_data["terms"], json_data["seg_para"])
         else:
-            result_seg = seg_sentence(json_data["diag"])
+            result_seg = seg_sentence(json_data["terms"])
         is_auto_match = False
         if "auto_match" in json_data.keys():
             is_auto_match = json_data["auto_match"]
         if "encode" in json_data.keys():
             result_sug = sugss(result_seg, is_encode=True, is_auto_match=is_auto_match)
         else:
-            result_sug = sugss(result_seg,is_auto_match=is_auto_match)
+            result_sug = sugss(result_seg, is_auto_match=is_auto_match)
     except Exception as e:
         abort(400)
     if "encode" in json_data.keys():
@@ -48,9 +49,9 @@ def seg_service():
     try:
         json = request.get_json()
         if "seg_para" in json:
-            result_seg = seg_sentence(json["diag"], json[["seg_para"]])
+            result_seg = seg_sentence(json["terms"], json[["seg_para"]])
         else:
-            result_seg = seg_sentence(json["diag"])
+            result_seg = seg_sentence(json["terms"])
     except:
         abort(400)
 
@@ -63,9 +64,10 @@ def sug_service():
         abort(400)
     try:
         json_data = request.get_json()
+        is_auto_match = False
         if "auto_match" in json_data.keys():
             is_auto_match = json_data["auto_match"]
-        result = sug_sentence(json_data["diag"],is_auto_match)
+        result = sug_sentence(json_data["terms"], is_auto_match)
     except:
         abort(400)
 
@@ -112,11 +114,5 @@ if __name__ == '__main__':
 
 result_seg = seg_sentence(["肺结核性"])
 print result_seg
-print(sugss(result_seg,is_auto_match=True))
-# print(sug_sentence(result_seg))
-# result_seg={u"高血压":[u"2级"]}
-# import json
-# new_seg = json.dumps(result_seg, ensure_ascii=True)
-# print type(new_seg)
-
-print(sug_sentence([[u"肺结核性",[u"肺结核性"]]],is_auto_match=True))
+print(sugss(result_seg, is_auto_match=True))
+print(sug_sentence([[u"肺结核性", [u"肺结核性"]]], is_auto_match=True))

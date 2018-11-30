@@ -1833,3 +1833,318 @@ spawned uWSGI worker 1 (pid: 11842, cores: 1)
 spawned uWSGI worker 2 (pid: 11843, cores: 1)
 spawned uWSGI worker 3 (pid: 11845, cores: 1)
 spawned uWSGI http 1 (pid: 11846)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 11842|app: 0|req: 1/1] 122.228.19.80 () {34 vars in 461 bytes} [Thu Nov 29 14:50:33 2018] GET / => generated 0 bytes in 6671 msecs (HTTP/1.1 302) 4 headers in 124 bytes (1 switches on core 0)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 11843|app: 0|req: 1/2] 122.228.19.80 () {34 vars in 473 bytes} [Thu Nov 29 14:50:40 2018] GET /login/ => generated 1687 bytes in 5333 msecs (HTTP/1.1 200) 2 headers in 88 bytes (1 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Nov 30 11:44:33 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/biaozhuxitong/uwsgi
+writing pidfile to /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.pid
+detected binary path: /root/anaconda2/bin/uwsgi
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+chdir() to /home/biaozhuxitong/biaozhuxitong/
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+building mime-types dictionary from file /etc/mime.types...1060 entry found
+lock engine: pthread robust mutexes
+thunder lock: enabled
+uWSGI http bound on 172.19.19.91:9004 fd 3
+uwsgi socket 0 bound to UNIX address /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.sock fd 6
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+Python main interpreter initialized at 0x7a7aa0
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 324448 bytes (316 KB) for 3 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x7a7aa0 pid: 27968 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 27968)
+spawned uWSGI worker 1 (pid: 27981, cores: 1)
+spawned uWSGI worker 2 (pid: 27982, cores: 1)
+spawned uWSGI worker 3 (pid: 27983, cores: 1)
+spawned uWSGI http 1 (pid: 27984)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Nov 30 15:36:59 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/biaozhuxitong/uwsgi
+writing pidfile to /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.pid
+detected binary path: /root/anaconda2/bin/uwsgi
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+chdir() to /home/biaozhuxitong/biaozhuxitong/
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+building mime-types dictionary from file /etc/mime.types...1060 entry found
+lock engine: pthread robust mutexes
+thunder lock: enabled
+uWSGI http bound on 172.19.19.91:9004 fd 3
+uwsgi socket 0 bound to UNIX address /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.sock fd 6
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+Python main interpreter initialized at 0x1157aa0
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 324448 bytes (316 KB) for 3 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x1157aa0 pid: 16724 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 16724)
+spawned uWSGI worker 1 (pid: 16736, cores: 1)
+spawned uWSGI worker 2 (pid: 16737, cores: 1)
+spawned uWSGI worker 3 (pid: 16738, cores: 1)
+spawned uWSGI http 1 (pid: 16739)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 16736|app: 0|req: 1/1] 10.10.142.249 () {42 vars in 757 bytes} [Fri Nov 30 07:38:47 2018] GET / => generated 52066 bytes in 6608 msecs (HTTP/1.1 200) 4 headers in 233 bytes (1 switches on core 0)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 16736|app: 0|req: 2/2] 10.10.142.249 () {50 vars in 924 bytes} [Fri Nov 30 07:38:56 2018] POST /get_files/ => generated 330 bytes in 1840 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 16737|app: 0|req: 1/3] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 07:38:54 2018] POST /get_session/ => generated 164 bytes in 6024 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 16738|app: 0|req: 1/4] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 07:38:54 2018] POST /get_session/ => generated 164 bytes in 6194 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 16736|app: 0|req: 3/5] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:39:00 2018] POST /select_file/ => generated 0 bytes in 484 msecs (HTTP/1.1 200) 4 headers in 213 bytes (1 switches on core 0)
+[pid: 16737|app: 0|req: 2/6] 10.10.142.249 () {50 vars in 930 bytes} [Fri Nov 30 07:39:01 2018] POST /send_segment/ => generated 3114 bytes in 741 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 16738|app: 0|req: 2/7] 10.10.142.249 () {50 vars in 942 bytes} [Fri Nov 30 07:39:08 2018] POST /update_seg_source/ => generated 3203 bytes in 547 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 16736|app: 0|req: 4/8] 10.10.142.249 () {50 vars in 934 bytes} [Fri Nov 30 07:39:11 2018] POST /send_suggest/ => generated 79525 bytes in 15313 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 16737|app: 0|req: 3/9] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:39:37 2018] POST /load_source/ => generated 251 bytes in 8 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 16738|app: 0|req: 3/10] 10.10.142.249 () {50 vars in 926 bytes} [Fri Nov 30 07:39:44 2018] POST /match_icd/ => generated 13954 bytes in 132 msecs (HTTP/1.1 500) 3 headers in 107 bytes (1 switches on core 0)
+[pid: 16736|app: 0|req: 5/11] 10.10.142.249 () {38 vars in 658 bytes} [Fri Nov 30 07:39:50 2018] GET /static/css/bootstrap.css.map => generated 7749 bytes in 30 msecs (HTTP/1.1 404) 2 headers in 80 bytes (1 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Nov 30 15:42:47 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/biaozhuxitong/uwsgi
+writing pidfile to /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.pid
+detected binary path: /root/anaconda2/bin/uwsgi
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+chdir() to /home/biaozhuxitong/biaozhuxitong/
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+building mime-types dictionary from file /etc/mime.types...1060 entry found
+lock engine: pthread robust mutexes
+thunder lock: enabled
+uWSGI http bound on 172.19.19.91:9004 fd 3
+uwsgi socket 0 bound to UNIX address /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.sock fd 6
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+Python main interpreter initialized at 0x205caa0
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 324448 bytes (316 KB) for 3 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x205caa0 pid: 17208 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 17208)
+spawned uWSGI worker 1 (pid: 17226, cores: 1)
+spawned uWSGI worker 2 (pid: 17227, cores: 1)
+spawned uWSGI worker 3 (pid: 17228, cores: 1)
+spawned uWSGI http 1 (pid: 17229)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 17226|app: 0|req: 1/1] 10.10.142.249 () {44 vars in 788 bytes} [Fri Nov 30 07:47:10 2018] GET / => generated 52066 bytes in 7025 msecs (HTTP/1.1 200) 4 headers in 233 bytes (1 switches on core 0)
+[pid: 17226|app: 0|req: 2/2] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:47:18 2018] POST /load_source/ => generated 251 bytes in 15 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 17227|app: 0|req: 1/3] 10.10.142.249 () {38 vars in 658 bytes} [Fri Nov 30 07:47:18 2018] GET /static/css/bootstrap.css.map => generated 7749 bytes in 6422 msecs (HTTP/1.1 404) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 17228|app: 0|req: 1/4] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 07:47:18 2018] POST /get_session/ => generated 164 bytes in 6530 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 17226|app: 0|req: 3/5] 10.10.142.249 () {50 vars in 926 bytes} [Fri Nov 30 07:47:24 2018] POST /match_icd/ => generated 1164 bytes in 11717 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 17227|app: 0|req: 2/6] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:47:37 2018] POST /load_source/ => generated 206 bytes in 5 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 17228|app: 0|req: 2/7] 10.10.142.249 () {50 vars in 924 bytes} [Fri Nov 30 07:47:43 2018] POST /match_icd/ => generated 1298 bytes in 635 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 17226|app: 0|req: 4/8] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:47:47 2018] POST /get_session/ => generated 164 bytes in 868 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 17227|app: 0|req: 3/9] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:53:33 2018] POST /get_session/ => generated 164 bytes in 731 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 17228|app: 0|req: 3/10] 10.10.142.249 () {48 vars in 813 bytes} [Fri Nov 30 07:53:35 2018] POST /clear_session/ => generated 0 bytes in 1966 msecs (HTTP/1.1 200) 4 headers in 213 bytes (1 switches on core 0)
+[pid: 17226|app: 0|req: 5/11] 10.10.142.249 () {50 vars in 930 bytes} [Fri Nov 30 07:53:37 2018] POST /send_segment/ => generated 39 bytes in 635 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 17227|app: 0|req: 4/12] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 07:53:42 2018] POST /get_session/ => generated 164 bytes in 620 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 17228|app: 0|req: 4/13] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 07:59:54 2018] POST /get_session/ => generated 164 bytes in 82 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 17226|app: 0|req: 6/14] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 07:59:54 2018] POST /get_session/ => generated 164 bytes in 85 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Nov 30 16:01:07 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/biaozhuxitong/uwsgi
+writing pidfile to /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.pid
+detected binary path: /root/anaconda2/bin/uwsgi
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+chdir() to /home/biaozhuxitong/biaozhuxitong/
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+building mime-types dictionary from file /etc/mime.types...1060 entry found
+lock engine: pthread robust mutexes
+thunder lock: enabled
+uWSGI http bound on 172.19.19.91:9004 fd 3
+uwsgi socket 0 bound to UNIX address /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.sock fd 6
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+Python main interpreter initialized at 0x183faa0
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 324448 bytes (316 KB) for 3 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x183faa0 pid: 19478 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 19478)
+spawned uWSGI worker 1 (pid: 19491, cores: 1)
+spawned uWSGI worker 2 (pid: 19492, cores: 1)
+spawned uWSGI worker 3 (pid: 19493, cores: 1)
+spawned uWSGI http 1 (pid: 19494)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 19491|app: 0|req: 1/1] 10.10.142.249 () {44 vars in 788 bytes} [Fri Nov 30 08:01:26 2018] GET / => generated 52066 bytes in 7691 msecs (HTTP/1.1 200) 4 headers in 233 bytes (1 switches on core 0)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 19492|app: 0|req: 1/2] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 08:01:34 2018] POST /get_session/ => generated 164 bytes in 6014 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 19493|app: 0|req: 1/3] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 08:01:34 2018] POST /get_session/ => generated 164 bytes in 6235 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 19491|app: 0|req: 2/4] 10.10.142.249 () {50 vars in 938 bytes} [Fri Nov 30 08:10:45 2018] POST /get_all_suggests/ => generated 406 bytes in 1203 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 19492|app: 0|req: 2/5] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:10:47 2018] POST /load_source/ => generated 251 bytes in 11 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 19493|app: 0|req: 2/6] 10.10.142.249 () {50 vars in 926 bytes} [Fri Nov 30 08:10:51 2018] POST /match_icd/ => generated 13954 bytes in 135 msecs (HTTP/1.1 500) 3 headers in 107 bytes (1 switches on core 0)
+[pid: 19491|app: 0|req: 3/7] 10.10.142.249 () {38 vars in 658 bytes} [Fri Nov 30 08:11:01 2018] GET /static/css/bootstrap.css.map => generated 7749 bytes in 25 msecs (HTTP/1.1 404) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 19492|app: 0|req: 3/8] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:11:41 2018] POST /get_session/ => generated 164 bytes in 831 msecs (HTTP/1.1 200) 4 headers in 225 bytes (1 switches on core 0)
+[pid: 19493|app: 0|req: 3/9] 10.10.142.249 () {44 vars in 788 bytes} [Fri Nov 30 08:11:42 2018] GET / => generated 52066 bytes in 738 msecs (HTTP/1.1 200) 4 headers in 233 bytes (1 switches on core 0)
+[pid: 19491|app: 0|req: 4/10] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 08:11:43 2018] POST /get_session/ => generated 164 bytes in 84 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 19492|app: 0|req: 4/11] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 08:11:43 2018] POST /get_session/ => generated 164 bytes in 82 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+[pid: 19493|app: 0|req: 4/12] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:12:25 2018] POST /load_source/ => generated 251 bytes in 7 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 19491|app: 0|req: 5/13] 10.10.142.249 () {38 vars in 658 bytes} [Fri Nov 30 08:12:28 2018] GET /static/css/bootstrap.css.map => generated 7749 bytes in 22 msecs (HTTP/1.1 404) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 19492|app: 0|req: 5/14] 10.10.142.249 () {50 vars in 926 bytes} [Fri Nov 30 08:12:33 2018] POST /match_icd/ => generated 13954 bytes in 130 msecs (HTTP/1.1 500) 3 headers in 107 bytes (1 switches on core 0)
+[pid: 19493|app: 0|req: 5/15] 10.10.142.249 () {42 vars in 775 bytes} [Fri Nov 30 08:12:44 2018] GET /match_icd => generated 0 bytes in 3 msecs (HTTP/1.1 301) 2 headers in 97 bytes (1 switches on core 0)
+[pid: 19491|app: 0|req: 6/16] 10.10.142.249 () {42 vars in 777 bytes} [Fri Nov 30 08:12:44 2018] GET /match_icd/ => generated 53249 bytes in 260 msecs (HTTP/1.1 500) 3 headers in 106 bytes (1 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Nov 30 16:17:51 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/biaozhuxitong/uwsgi
+writing pidfile to /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.pid
+detected binary path: /root/anaconda2/bin/uwsgi
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+chdir() to /home/biaozhuxitong/biaozhuxitong/
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+building mime-types dictionary from file /etc/mime.types...1060 entry found
+lock engine: pthread robust mutexes
+thunder lock: enabled
+uWSGI http bound on 172.19.19.91:9004 fd 3
+uwsgi socket 0 bound to UNIX address /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.sock fd 6
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+Python main interpreter initialized at 0x1bd1aa0
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 324448 bytes (316 KB) for 3 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x1bd1aa0 pid: 20620 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 20620)
+spawned uWSGI worker 1 (pid: 20633, cores: 1)
+spawned uWSGI worker 2 (pid: 20634, cores: 1)
+spawned uWSGI worker 3 (pid: 20635, cores: 1)
+spawned uWSGI http 1 (pid: 20636)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 20634|app: 0|req: 1/1] 10.10.142.249 () {42 vars in 757 bytes} [Fri Nov 30 08:36:38 2018] GET / => generated 52066 bytes in 7352 msecs (HTTP/1.1 200) 4 headers in 233 bytes (1 switches on core 0)
+[pid: 20634|app: 0|req: 2/2] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 08:36:46 2018] POST /get_session/ => generated 164 bytes in 80 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 20633|app: 0|req: 1/3] 10.10.142.249 () {38 vars in 658 bytes} [Fri Nov 30 08:36:46 2018] GET /static/css/bootstrap.css.map => generated 7749 bytes in 6378 msecs (HTTP/1.1 404) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 20635|app: 0|req: 1/4] 10.10.142.249 () {48 vars in 809 bytes} [Fri Nov 30 08:36:46 2018] POST /get_session/ => generated 164 bytes in 6379 msecs (HTTP/1.1 200) 3 headers in 94 bytes (1 switches on core 0)
+*** Starting uWSGI 2.0.17 (64bit) on [Fri Nov 30 16:44:03 2018] ***
+compiled with version: 4.8.5 20150623 (Red Hat 4.8.5-16) on 13 March 2018 08:19:00
+os: Linux-3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 11:36:42 UTC 2015
+nodename: slave
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 8
+current working directory: /home/biaozhuxitong/biaozhuxitong/uwsgi
+writing pidfile to /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.pid
+detected binary path: /root/anaconda2/bin/uwsgi
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+chdir() to /home/biaozhuxitong/biaozhuxitong/
+your processes number limit is 4096
+your memory page size is 4096 bytes
+detected max file descriptor number: 65536
+building mime-types dictionary from file /etc/mime.types...1060 entry found
+lock engine: pthread robust mutexes
+thunder lock: enabled
+uWSGI http bound on 172.19.19.91:9004 fd 3
+uwsgi socket 0 bound to UNIX address /home/biaozhuxitong/biaozhuxitong/uwsgi/uwsgi.sock fd 6
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 2.7.14 |Anaconda, Inc.| (default, Oct 16 2017, 17:29:19)  [GCC 7.2.0]
+Python main interpreter initialized at 0x1f9caa0
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 324448 bytes (316 KB) for 3 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x1f9caa0 pid: 23386 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 23386)
+spawned uWSGI worker 1 (pid: 23399, cores: 1)
+spawned uWSGI worker 2 (pid: 23400, cores: 1)
+spawned uWSGI worker 3 (pid: 23401, cores: 1)
+spawned uWSGI http 1 (pid: 23402)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 23399|app: 0|req: 1/1] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:48:45 2018] POST /load_source/ => generated 251 bytes in 6151 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+/root/anaconda2/lib/python2.7/site-packages/fuzzywuzzy/fuzz.py:35: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+[pid: 23399|app: 0|req: 2/2] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:48:57 2018] POST /load_source/ => generated 206 bytes in 4 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 23399|app: 0|req: 3/3] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:48:58 2018] POST /load_source/ => generated 251 bytes in 3 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 23400|app: 0|req: 1/4] 10.10.142.249 () {50 vars in 944 bytes} [Fri Nov 30 08:48:53 2018] POST /match_icd_with_code/ => generated 1132 bytes in 5911 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 23399|app: 0|req: 4/5] 10.10.142.249 () {50 vars in 928 bytes} [Fri Nov 30 08:49:01 2018] POST /load_source/ => generated 206 bytes in 3 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)
+[pid: 23401|app: 0|req: 1/6] 10.10.142.249 () {50 vars in 944 bytes} [Fri Nov 30 08:48:56 2018] POST /match_icd_with_code/ => generated 1132 bytes in 6012 msecs (HTTP/1.1 200) 2 headers in 80 bytes (1 switches on core 0)

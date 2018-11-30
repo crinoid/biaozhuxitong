@@ -44,7 +44,7 @@ def build_icd_norm(path, icd_path, service_url):
         icd_list.append(icd)
         icd_dict[icd] = code
 
-    terms_dict = eval(requests.post(service_url, data=json.dumps({"diag": icd_list}),
+    terms_dict = eval(requests.post(service_url, data=json.dumps({"terms": icd_list}),
                                     headers=utils.HEADERS).content.decode('utf8'))
 
     f = open(icd_path, "w")
@@ -85,35 +85,36 @@ def build_icd_type_norm(icd_path, out_path, type_name, source_name):
     f = open(out_path, "w")
     core_dict = {}
 
-    # f_region = open("../data/region.csv").readlines()
+    f_region = open("../data/region.csv").readlines()
     for tp in type_name:
         data_set = utils.db.zd_suggest.find({"sug":tp})
         for d in data_set:
             tmp=[]
             for icd in icd_list:
                 if d["seg"] in icd:
-                    terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": [icd]}),
+                    terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": [icd]}),
                                                     headers=utils.HEADERS).content.decode('utf8'))
-                    if "部位" in terms_dict[0].keys():
-                        regions = terms_dict[0]["部位"]
-                    elif "成分" in terms_dict[0].keys():
-                        regions = terms_dict[0]["成分"]
-                    else:
-                        regions=[]
+                    # if "部位" in terms_dict[0].keys():
+                    #     regions = terms_dict[0]["部位"]
+                    # elif "成分" in terms_dict[0].keys():
+                    #     regions = terms_dict[0]["成分"]
+                    # else:
+                    #     regions=[]
                     try:
                         features = terms_dict[0]["特征词"]
                     except:
                         features = []
                     # 添加可能的部位
-                    # for r in f_region:
-                    #     if r.strip() in icd.encode('utf8'):
-                    #         regions.append(r.strip())
+                    regions=[]
+                    for r in f_region:
+                        if r.strip() in icd.encode('utf8'):
+                            regions.append(r.strip())
                     tmp.append([icd.encode('utf8'),icd_dict[icd].encode('utf8'),source_name,list(set(regions)),list(set(features))])
             if tmp:
                 core_dict[d["seg"].encode('utf8')]=tmp
 
 
-    # terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": icd_list}),
+    # terms_dict = requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": icd_list}),
     #                            headers=utils.HEADERS).content.decode('utf8')
     # terms_dict = eval(terms_dict)
     #
@@ -147,6 +148,77 @@ def build_icd_type_norm(icd_path, out_path, type_name, source_name):
 
     f.write(json.dumps(core_dict, ensure_ascii=False, indent=4))
 
+def build_icd_simple(icd_path, out_path, type_name):
+    '''
+    提取标注类型，写成字典形式，[icd,icd_code]
+    :param icd_path: icd文件名
+    :param out_path: 输出文件名
+    :return:
+    '''
+
+    # reflections = json.load(open("../data/synonyms/region_reflection.json"))
+
+    icd_list = open(icd_path).readlines()
+
+    f = open(out_path, "w")
+    keyword_dict = {}
+
+    #部位对应 部位 和 成分
+    if type_name=="部位":
+        all_regions = open("../data/region.csv").readlines()
+        for r in all_regions:
+            keyword_dict[r.strip()]=[]
+    elif type_name=="中心词":
+        all_cores = open("../data/core.csv").readlines()
+        for r in all_cores:
+            keyword_dict[r.strip()]=[]
+    if type_name=="部位":
+        for icd in icd_list:
+            icd=icd.strip()
+            terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": [icd]}),
+                                            headers=utils.HEADERS).content.decode('utf8'))
+            try:
+                features = terms_dict[0]["特征词"]
+            except:
+                features = []
+
+            if "部位" in terms_dict[0].keys():
+                for r in terms_dict[0]["部位"]:
+                    keyword_dict[r].append([icd,terms_dict[0]["部位"],features])
+            if "成分" in terms_dict[0].keys():
+                for r in terms_dict[0]["成分"]:
+                    keyword_dict[r].append([icd, terms_dict[0]["成分"], features])
+            '''
+            中心词是否要带部位？理想的分词是中心词不带有部位，如脑积水=>脑/积水，不要整体作为中心词（不使用jieba系统词库）
+            中心词使用in来建立key，如脑积水是个常见的中心词，可以不用分得过细为了提取部位，只要有 积水 这个词就行，用in可以将结核对应到肺结核
+            这样输入 大脑/积水，通过积水找到脑积水，匹配
+            如果输入的编目带有部位，而部位不在词库中，通过中心词查找，中心词对应的编目有部位，需要判断这两个部位是否近似，否则不能匹配
+            或者输入的编目的部位有对应的，但最佳匹配的部位是其近似词（如腿&四肢），还需要通过中心词查找，部位近似
+                '''
+
+    elif type_name=="中心词":
+        for icd in icd_list:
+            icd=icd.strip()
+            terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": [icd]}),
+                                            headers=utils.HEADERS).content.decode('utf8'))
+            try:
+                features = terms_dict[0]["特征词"]
+            except:
+                features = []
+            for c in keyword_dict.keys():
+                if c in icd:
+                    keyword_dict[c].append([icd,features])
+
+        # if "中心词" in terms_dict[0].keys():
+        #     for r in terms_dict[0]["中心词"]:
+        #         keyword_dict[r].append([icd, [], features])
+
+    new_dic={}
+    for k,v in keyword_dict.iteritems():
+        if v:
+            new_dic[k]=v
+
+    f.write(json.dumps(new_dic, ensure_ascii=False, indent=4))
 
 def build_similarity(target, dis):
     '''
@@ -185,12 +257,22 @@ def build_icd_code_dict(icd_path, out_path, source, pos):
     f = open(out_path, "w")
     f.write(json.dumps(icd_dict, ensure_ascii=False, indent=4))
 
+def get_unknows_terms(path):
+    for icd in open(path).readlines():
+        icd=icd.strip()
+        terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": [icd]}),
+                                        headers=utils.HEADERS).content.decode('utf8'))
+        if "部位" not in terms_dict[0].keys() and "中心词" not in terms_dict[0].keys() and "成分" not in terms_dict[0].keys():
+            print icd
 
 # extract_icd("../data/icd/北京临床ICD9(v7.01).xls","../data/icd/cache/shoushu/BJ_icd_name.csv",1,0)
 # build_icd_norm("../data/icd/cache/zhenduan/LC_icd_name.csv", "../data/icd/cache/zhenduan/LC_icd_norm.csv",utils.SERVICE_URL_ZD)
-# build_icd_type_norm("../data/icd/cache/zhenduan/GB_icd_name.csv", "../data/icd/cache/zhenduan/GB_icd_region.json", ["部位","成分"],
-#                     "国标版")
+# build_icd_type_norm("../data/icd/cache/zhenduan/LC_icd_name.csv", "../data/icd/cache/zhenduan/LC_icd_region.json", ["部位","成分"],
+#                     "国家临床版")
+# build_icd_simple("../data/协和数据匹配/terms.csv", "../data/协和数据匹配/terms_core.json", "中心词")
 # build_icd_code_dict("../data/icd/cache/shoushu/BJ_icd_name.csv", "../data/icd/cache/shoushu/BJ_icdcode_dict.csv","北京临床版",2)
+
+# get_unknows_terms("../data/协和数据匹配/terms.csv")
 
 def remove_para(data):
     items = ["、", "（", "）", ",", "，", "(", ")", "？", " ", "-", "/", "：", ":", ".", "［", "］", "[", "]", "%", "~", "†"]
@@ -269,7 +351,7 @@ def seg_icd(path):
     '''
     for l in open("../data/icd/cache/zhenduan/"+path+"_icd_name.csv").xreadlines():
         icd=l.split("\t")[0]
-        terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"diag": [icd]}),
+        terms_dict = eval(requests.post(utils.SERVICE_URL_ZD, data=json.dumps({"terms": [icd]}),
                                         headers=utils.HEADERS).content.decode('utf8'))
         if "部位" not in terms_dict[0].keys():
             print icd

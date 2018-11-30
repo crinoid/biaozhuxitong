@@ -23,12 +23,10 @@ def service():
     try:
         json = request.get_json()
         if "seg_para" in json.keys():
-            result_seg = seg_sentence(json["diag"],json["seg_para"])
+            result_seg = seg_sentence(json["terms"],json["seg_para"])
         else:
-            result_seg = seg_sentence(json["diag"])
+            result_seg = seg_sentence(json["terms"])
         result_sug = sugss(result_seg)
-        # res = {"diag":result_sug}
-        # print "res",res
     except:
         abort(400)
 
@@ -53,9 +51,9 @@ def seg_service():
     try:
         json = request.get_json()
         if "seg_para" in json:
-            result_seg = seg_sentence(json["diag"],json[["seg_para"]])
+            result_seg = seg_sentence(json["terms"],json[["seg_para"]])
         else:
-            result_seg = seg_sentence(json["diag"])
+            result_seg = seg_sentence(json["terms"])
         # result_seg = seg_sentences(request.get_json())
     except:
         abort(400)
@@ -70,9 +68,9 @@ def seg():
     try:
         json = request.get_json()
         if "seg_para" in json:
-            result_seg = seg_sentence(json["diag"],json[["seg_para"]])
+            result_seg = seg_sentence(json["terms"],json[["seg_para"]])
         else:
-            result_seg = seg_sentence(json["diag"])
+            result_seg = seg_sentence(json["terms"])
         # result_seg = seg_sentences(request.get_json())
     except:
         abort(400)

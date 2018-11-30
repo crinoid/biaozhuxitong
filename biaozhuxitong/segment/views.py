@@ -80,7 +80,7 @@ def send_segment(request):
 
 
 def update_segments(data, dbname):
-    return call_seg_api(json.dumps({"diag": data}), dbname)
+    return call_seg_api(json.dumps({"terms": data}), dbname)
 
 
 def call_seg_api(data, dbname):

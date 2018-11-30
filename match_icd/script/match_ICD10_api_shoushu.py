@@ -104,7 +104,7 @@ class MatchingICD(object):
         if rest_dis:
             diag=rest_dis.keys()
         # 诊断标注，提取key=原文，部位，中心词
-        terms_dict = requests.post(utils.SERVICE_URL_SS, data=json.dumps({"diag": diag}),
+        terms_dict = requests.post(utils.SERVICE_URL_SS, data=json.dumps({"terms": diag}),
                                    headers=utils.HEADERS).content.decode('utf8')
         terms_dict = eval(terms_dict)
 
@@ -123,16 +123,20 @@ class MatchingICD(object):
             res[dis]=map(self.rewrite_search,r)
             # res[dis] = map(match_ICD10_api.rewrite_search, r)
 
+        new_res=[]
         for k,v in res.iteritems():
-            if k in PATCH_DATA.keys():
-                for v1 in v:
-                    if v1[0] == PATCH_DATA[k][0]:
-                        res[k].remove(v1)
-                res[k].insert(0,[PATCH_DATA[k][0],PATCH_DATA[k][1],100,"北京临床版"])
-                res[k]=res[k][:self.MATCH_COUNT]
-                break
+            new_res.append([k,v])
 
-        return res
+        # for k,v in res.iteritems():
+        #     if k in PATCH_DATA.keys():
+        #         for v1 in v:
+        #             if v1[0] == PATCH_DATA[k][0]:
+        #                 res[k].remove(v1)
+        #         res[k].insert(0,[PATCH_DATA[k][0],PATCH_DATA[k][1],100,"北京临床版"])
+        #         res[k]=res[k][:self.MATCH_COUNT]
+        #         break
+
+        return new_res
 
     def source_reflection(self,source):
         return "ss-icd-"+source.lower()
@@ -316,7 +320,7 @@ m_icd = MatchingICD()
 def icd_service(data, source_list,size=MATCH_COUNT,is_enable_ft=False):
     '''
 
-    :param data: json格式的诊断，{diag:[]}
+    :param data: json格式的诊断，{terms:[]}
     :return:
     '''
 
@@ -345,5 +349,5 @@ def icd_code_service(data,source_list,size=MATCH_COUNT):
     #     print "-----"
     return res
 
-# icd_service(["肋骨取骨术"], ["BJ"])
+# icd_service(["肋骨取骨术"], ["BJ"], size=5)
 # icd_code_service(["00.02"], ["BJ","LC"])
